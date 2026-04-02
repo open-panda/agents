@@ -678,6 +678,16 @@
       "skillFolderHash": "190395c0dca241d4edfe36e585373e68ae7fbfa6",
       "installedAt": "2026-04-02T14:23:45.232Z",
       "updatedAt": "2026-04-02T14:23:45.232Z"
+    },
+    "firecrawl": {
+      "source": "firecrawl/cli",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/firecrawl/cli.git",
+      "skillPath": "skills/firecrawl-cli/SKILL.md",
+      "skillFolderHash": "c9653b0d9276d106234c78b72953187ede0e3e63",
+      "pluginName": "firecrawl",
+      "installedAt": "2026-04-02T14:25:18.505Z",
+      "updatedAt": "2026-04-02T14:25:18.505Z"
     }
   },
   "dismissed": {

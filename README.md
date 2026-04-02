@@ -72,3 +72,8 @@ vercel-react-best-practices
 npx skills add https://github.com/vercel-labs/agent-skills --skill vercel-react-best-practices
 ```
 
+firecrawl
+
+```bash
+npx skills add https://github.com/firecrawl/cli --skill firecrawl
+```
