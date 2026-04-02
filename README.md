@@ -41,3 +41,9 @@ remotion
 ```bash
 npx skills add https://github.com/remotion-dev/skills --skill remotion-best-practices
 ```
+
+frontend-design
+
+```bash
+npx skills add https://github.com/anthropics/skills --skill frontend-design
+```
