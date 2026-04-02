@@ -47,3 +47,9 @@ frontend-design
 ```bash
 npx skills add https://github.com/anthropics/skills --skill frontend-design
 ```
+
+impeccable style
+
+```bash
+npx skills add pbakaus/impeccable
+```

@@ -1,16 +1,17 @@
 ---
 name: normalize
-description: The page, route, or feature to normalize (optional)
-user-invokable: true
-args:
-  - name: feature
-description: The page, route, or feature to normalize (optional)
-    required: false
-allowed-tools: 
-disable: true
+description: Audits and realigns UI to match design system standards, spacing, tokens, and patterns. Use when the user mentions consistency, design drift, mismatched styles, tokens, or wants to bring a feature back in line with the system.
+user-invocable: true
+argument-hint: "[feature (page, route, component...)]"
 ---
 
 Analyze and redesign the feature to perfectly match our design system standards, aesthetics, and established patterns.
+
+## MANDATORY PREPARATION
+
+Invoke /frontend-design — it contains design principles, anti-patterns, and the **Context Gathering Protocol**. Follow the protocol before proceeding — if no design context exists yet, you MUST run /teach-impeccable first.
+
+---
 
 ## Plan
 

@@ -1,33 +1,15 @@
 ---
 name: colorize
-description: The feature or component to colorize (optional)
-user-invokable: true
-args:
-  - name: target
-description: The feature or component to colorize (optional)
-    required: false
-allowed-tools: 
-disable: true
+description: Add strategic color to features that are too monochromatic or lack visual interest, making interfaces more engaging and expressive. Use when the user mentions the design looking gray, dull, lacking warmth, needing more color, or wanting a more vibrant or expressive palette.
+user-invocable: true
+argument-hint: "[target]"
 ---
 
 Strategically introduce color to designs that are too monochromatic, gray, or lacking in visual warmth and personality.
 
 ## MANDATORY PREPARATION
 
-### Context Gathering (Do This First)
-
-You cannot do a great job without having necessary context, such as target audience (critical), desired use-cases (critical), brand personality/tone, and especially existing brand colors.
-
-Attempt to gather these from the current thread or codebase.
-
-1. If you don't find *exact* information and have to infer from existing design and functionality, you MUST STOP and STOP and call the AskUserQuestionTool to clarify. whether you got it right.
-2. Otherwise, if you can't fully infer or your level of confidence is medium or lower, you MUST STOP and call the AskUserQuestionTool to clarify. clarifying questions first to complete your context.
-
-Do NOT proceed until you have answers. Guessing leads to generic AI slop colors.
-
-### Use frontend-design skill
-
-Use the frontend-design skill for design principles and anti-patterns. Do NOT proceed until it has executed and you know all DO's and DON'Ts.
+Invoke /frontend-design — it contains design principles, anti-patterns, and the **Context Gathering Protocol**. Follow the protocol before proceeding — if no design context exists yet, you MUST run /teach-impeccable first. Additionally gather: existing brand colors.
 
 ---
 
@@ -49,7 +31,7 @@ Analyze the current state and identify opportunities:
    - **Wayfinding**: Helping users navigate and understand structure
    - **Delight**: Moments of visual interest and personality
 
-If any of these are unclear from the codebase, STOP and call the AskUserQuestionTool to clarify.
+If any of these are unclear from the codebase, ask the user directly to clarify what you cannot infer.
 
 **CRITICAL**: More color ≠ better. Strategic color beats rainbow vomit every time. Every color should have a purpose.
 

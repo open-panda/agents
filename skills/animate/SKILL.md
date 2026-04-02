@@ -1,33 +1,15 @@
 ---
 name: animate
-description: The feature or component to animate (optional)
-user-invokable: true
-args:
-  - name: target
-description: The feature or component to animate (optional)
-    required: false
-allowed-tools: 
-disable: true
+description: Review a feature and enhance it with purposeful animations, micro-interactions, and motion effects that improve usability and delight. Use when the user mentions adding animation, transitions, micro-interactions, motion design, hover effects, or making the UI feel more alive.
+user-invocable: true
+argument-hint: "[target]"
 ---
 
 Analyze a feature and strategically add animations and micro-interactions that enhance understanding, provide feedback, and create delight.
 
 ## MANDATORY PREPARATION
 
-### Context Gathering (Do This First)
-
-You cannot do a great job without having necessary context, such as target audience (critical), desired use-cases (critical), brand personality/tone (playful vs serious, energetic vs calm), and performance constraints.
-
-Attempt to gather these from the current thread or codebase.
-
-1. If you don't find *exact* information and have to infer from existing design and functionality, you MUST STOP and STOP and call the AskUserQuestionTool to clarify. whether you got it right.
-2. Otherwise, if you can't fully infer or your level of confidence is medium or lower, you MUST STOP and call the AskUserQuestionTool to clarify. clarifying questions first to complete your context.
-
-Do NOT proceed until you have answers. Guessing leads to inappropriate or excessive animation.
-
-### Use frontend-design skill
-
-Use the frontend-design skill for design principles and anti-patterns. Do NOT proceed until it has executed and you know all DO's and DON'Ts.
+Invoke /frontend-design — it contains design principles, anti-patterns, and the **Context Gathering Protocol**. Follow the protocol before proceeding — if no design context exists yet, you MUST run /teach-impeccable first. Additionally gather: performance constraints.
 
 ---
 
@@ -48,7 +30,7 @@ Analyze where motion would improve the experience:
    - Who's the audience? (Motion-sensitive users? Power users who want speed?)
    - What matters most? (One hero animation vs many micro-interactions?)
 
-If any of these are unclear from the codebase, STOP and call the AskUserQuestionTool to clarify.
+If any of these are unclear from the codebase, ask the user directly to clarify what you cannot infer.
 
 **CRITICAL**: Respect `prefers-reduced-motion`. Always provide non-animated alternatives for users who need them.
 

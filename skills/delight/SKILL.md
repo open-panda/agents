@@ -1,33 +1,15 @@
 ---
 name: delight
-description: The feature or area to add delight to (optional)
-user-invokable: true
-args:
-  - name: target
-description: The feature or area to add delight to (optional)
-    required: false
-allowed-tools: 
-disable: true
+description: Add moments of joy, personality, and unexpected touches that make interfaces memorable and enjoyable to use. Elevates functional to delightful. Use when the user asks to add polish, personality, animations, micro-interactions, delight, or make an interface feel fun or memorable.
+user-invocable: true
+argument-hint: "[target]"
 ---
 
 Identify opportunities to add moments of joy, personality, and unexpected polish that transform functional interfaces into delightful experiences.
 
 ## MANDATORY PREPARATION
 
-### Context Gathering (Do This First)
-
-You cannot do a great job without having necessary context, such as target audience (critical), desired use-cases (critical), brand personality (playful vs professional vs quirky vs elegant), and what's appropriate for the domain.
-
-Attempt to gather these from the current thread or codebase.
-
-1. If you don't find *exact* information and have to infer from existing design and functionality, you MUST STOP and STOP and call the AskUserQuestionTool to clarify. whether you got it right.
-2. Otherwise, if you can't fully infer or your level of confidence is medium or lower, you MUST STOP and call the AskUserQuestionTool to clarify. clarifying questions first to complete your context.
-
-Do NOT proceed until you have answers. Delight that's wrong for the context is worse than no delight at all.
-
-### Use frontend-design skill
-
-Use the frontend-design skill for design principles and anti-patterns. Do NOT proceed until it has executed and you know all DO's and DON'Ts.
+Invoke /frontend-design — it contains design principles, anti-patterns, and the **Context Gathering Protocol**. Follow the protocol before proceeding — if no design context exists yet, you MUST run /teach-impeccable first. Additionally gather: what's appropriate for the domain (playful vs professional vs quirky vs elegant).
 
 ---
 
@@ -56,7 +38,7 @@ Identify where delight would enhance (not distract from) the experience:
    - **Helpful surprises**: Anticipating needs before users ask (productivity tools)
    - **Sensory richness**: Satisfying sounds, smooth animations (creative tools)
 
-If any of these are unclear from the codebase, STOP and call the AskUserQuestionTool to clarify.
+If any of these are unclear from the codebase, ask the user directly to clarify what you cannot infer.
 
 **CRITICAL**: Delight should enhance usability, never obscure it. If users notice the delight more than accomplishing their goal, you've gone too far.
 
@@ -115,7 +97,7 @@ Add personality and joy through these methods:
 
 **Loading delight**:
 - Playful loading animations (not just spinners)
-- Personality in loading messages ("Herding pixels..." "Teaching robots to dance...")
+- Personality in loading messages (write product-specific ones, not generic AI filler)
 - Progress indication with encouraging messages
 - Skeleton screens with subtle animations
 
@@ -205,7 +187,7 @@ Add personality and joy through these methods:
 
 **Form interactions**:
 - Input fields that animate on focus
-- Checkboxes that bounce when checked
+- Checkboxes with a satisfying scale pulse when checked
 - Success state that celebrates valid input
 - Auto-grow textareas
 
@@ -255,12 +237,14 @@ Add personality and joy through these methods:
 - Countdown with encouraging messages
 
 ```
-Loading messages rotation:
-- "Waking up the servers..."
-- "Teaching robots to dance..."
-- "Consulting the magic 8-ball..."
-- "Counting backwards from infinity..."
+Loading messages — write ones specific to your product, not generic AI filler:
+- "Crunching your latest numbers..."
+- "Syncing with your team's changes..."
+- "Preparing your dashboard..."
+- "Checking for updates since yesterday..."
 ```
+
+**WARNING**: Avoid cliched loading messages like "Herding pixels", "Teaching robots to dance", "Consulting the magic 8-ball", "Counting backwards from infinity". These are AI-slop copy — instantly recognizable as machine-generated. Write messages that are specific to what your product actually does.
 
 ### Celebration Moments
 
