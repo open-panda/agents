@@ -1,0 +1,33 @@
+{
+  "version": 3,
+  "skills": {
+    "opencli": {
+      "source": "joeseesun/opencli-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/joeseesun/opencli-skill.git",
+      "skillPath": "SKILL.md",
+      "skillFolderHash": "",
+      "installedAt": "2026-03-31T15:26:54.591Z",
+      "updatedAt": "2026-03-31T15:26:54.591Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "antigravity",
+    "cline",
+    "codex",
+    "cursor",
+    "deepagents",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-cli",
+    "opencode",
+    "warp",
+    "claude-code",
+    "openclaw",
+    "codebuddy"
+  ]
+}
