@@ -1,0 +1,8 @@
+{
+  "name": "baoyu-url-to-markdown-scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "baoyu-fetch": "file:./vendor/baoyu-fetch"
+  }
+}
