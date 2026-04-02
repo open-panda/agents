@@ -59,3 +59,16 @@ seo-audit
 ```bash
 npx skills add https://github.com/coreyhaines31/marketingskills --skill seo-audit
 ```
+
+next-best-practices
+
+```bash
+npx skills add https://github.com/vercel-labs/next-skills --skill next-best-practices
+```
+
+vercel-react-best-practices
+
+```bash
+npx skills add https://github.com/vercel-labs/agent-skills --skill vercel-react-best-practices
+```
+
