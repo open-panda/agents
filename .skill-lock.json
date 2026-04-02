@@ -688,6 +688,15 @@
       "pluginName": "firecrawl",
       "installedAt": "2026-04-02T14:25:18.505Z",
       "updatedAt": "2026-04-02T14:25:18.505Z"
+    },
+    "slidev": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/antfu/skills.git",
+      "skillPath": "skills/slidev/SKILL.md",
+      "skillFolderHash": "484dbdd960c714d80b5ddca7056cb788b0afbfe1",
+      "installedAt": "2026-04-02T14:29:45.438Z",
+      "updatedAt": "2026-04-02T14:29:45.438Z"
     }
   },
   "dismissed": {
