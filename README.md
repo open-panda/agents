@@ -6,22 +6,33 @@ obsidian
 npx skills add https://github.com/kepano/obsidian-skills
 ```
 
-
 opencli
 
 ```bash
-npx skills add https://github.com/jackwener/opencli --skill opencli
+npx skills add https://github.com/jackwener/opencli
+```
+
+lark-cli
+
+```bash
+npx skills add https://github.com/larksuite/cli
 ```
 
 agent-browser
 
 ```bash
-npx skills add https://github.com/vercel-labs/agent-browser --skill agent-browser
+npx skills add https://github.com/vercel-labs/agent-browser
 ```
 
 baoyu-skills
 
 ```bash
-npx skills add https://github.com/jimliu/baoyu-skills --skill baoyu-skills
+npx skills add https://github.com/jimliu/baoyu-skills
+```
+
+skill-creator
+
+```bash
+npx skills add https://github.com/anthropics/skills --skill skill-creator
 ```
 
