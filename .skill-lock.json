@@ -9,6 +9,51 @@
       "skillFolderHash": "bb137ce9014808be81c4f52311a8355db6a6596d",
       "installedAt": "2026-03-31T15:26:54.591Z",
       "updatedAt": "2026-04-02T13:56:00.080Z"
+    },
+    "defuddle": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
+      "skillPath": "skills/defuddle/SKILL.md",
+      "skillFolderHash": "d365ce41229386873b7868d05c13fac80cd9c7fc",
+      "installedAt": "2026-04-02T14:06:00.186Z",
+      "updatedAt": "2026-04-02T14:06:00.186Z"
+    },
+    "json-canvas": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
+      "skillPath": "skills/json-canvas/SKILL.md",
+      "skillFolderHash": "9df7971db7ffebf96f2a207840b9f4765aa11b04",
+      "installedAt": "2026-04-02T14:06:00.701Z",
+      "updatedAt": "2026-04-02T14:06:00.701Z"
+    },
+    "obsidian-bases": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
+      "skillPath": "skills/obsidian-bases/SKILL.md",
+      "skillFolderHash": "4bef60bb848bfb02b4172b552626d5741b0d4057",
+      "installedAt": "2026-04-02T14:06:01.229Z",
+      "updatedAt": "2026-04-02T14:06:01.229Z"
+    },
+    "obsidian-cli": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
+      "skillPath": "skills/obsidian-cli/SKILL.md",
+      "skillFolderHash": "96254a554e480359de7b685571876f2e7f9ba57d",
+      "installedAt": "2026-04-02T14:06:01.752Z",
+      "updatedAt": "2026-04-02T14:06:01.752Z"
+    },
+    "obsidian-markdown": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
+      "skillPath": "skills/obsidian-markdown/SKILL.md",
+      "skillFolderHash": "5caf5d9e7de204f3904216857545f2aa36bcfcac",
+      "installedAt": "2026-04-02T14:06:02.436Z",
+      "updatedAt": "2026-04-02T14:06:02.436Z"
     }
   },
   "dismissed": {
