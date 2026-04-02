@@ -19,3 +19,9 @@ agent-browser
 npx skills add https://github.com/vercel-labs/agent-browser --skill agent-browser
 ```
 
+baoyu-skills
+
+```bash
+npx skills add https://github.com/jimliu/baoyu-skills --skill baoyu-skills
+```
+
