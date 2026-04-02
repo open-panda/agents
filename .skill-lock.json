@@ -2,13 +2,13 @@
   "version": 3,
   "skills": {
     "opencli": {
-      "source": "joeseesun/opencli-skill",
+      "source": "jackwener/opencli",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/joeseesun/opencli-skill.git",
+      "sourceUrl": "https://github.com/jackwener/opencli.git",
       "skillPath": "SKILL.md",
-      "skillFolderHash": "",
+      "skillFolderHash": "bb137ce9014808be81c4f52311a8355db6a6596d",
       "installedAt": "2026-03-31T15:26:54.591Z",
-      "updatedAt": "2026-03-31T15:26:54.591Z"
+      "updatedAt": "2026-04-02T13:56:00.080Z"
     }
   },
   "dismissed": {
@@ -21,6 +21,7 @@
     "codex",
     "cursor",
     "deepagents",
+    "firebender",
     "gemini-cli",
     "github-copilot",
     "kimi-cli",
