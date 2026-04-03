@@ -769,6 +769,15 @@
       "skillFolderHash": "3013fdeb8a11b10b1eb795ec3ae8bfca38f7c26d",
       "installedAt": "2026-04-03T04:02:00.953Z",
       "updatedAt": "2026-04-03T04:02:00.953Z"
+    },
+    "analyze-new-repo": {
+      "source": "johnlee6511/analyze-new-repo",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/johnlee6511/analyze-new-repo.git",
+      "skillPath": "skills/analyze-new-repo/SKILL.md",
+      "skillFolderHash": "8e76a1f1deeb950be6a7a0e60dbb55b75ec9f85f",
+      "installedAt": "2026-04-03T04:10:16.390Z",
+      "updatedAt": "2026-04-03T04:10:16.390Z"
     }
   },
   "dismissed": {
