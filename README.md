@@ -9,7 +9,14 @@
 ### 🌐 网络 & 内容采集
 | 技能 | 说明 |
 |------|------|
-| `firecrawl` | 网页搜索、爬取、交互，返回 LLM 友好的 Markdown |
+| `firecrawl` | Firecrawl CLI 总览，定义搜索→抓取→映射→爬取→交互的渐进式工作流，输出 LLM 友好的 Markdown |
+| `firecrawl-search` | 网页搜索，返回搜索结果并可选抓取全文内容，支持新闻/图片/分类/时间过滤 |
+| `firecrawl-scrape` | 单页抓取，支持 JS 渲染的 SPA、多 URL 并发、多格式输出（markdown/html/截图/链接） |
+| `firecrawl-map` | 站点 URL 发现，列出或搜索大型站点中的所有页面，常与 scrape 配合使用 |
+| `firecrawl-crawl` | 批量爬取整个站点或子目录，支持深度限制、路径过滤和并发控制 |
+| `firecrawl-download` | 整站下载为本地文件（实验性），组合 map + scrape，支持截图和多格式保存 |
+| `firecrawl-instruct` | 浏览器交互，在已抓取页面上用自然语言或代码执行点击、表单填写、分页导航等操作 |
+| `firecrawl-agent` | AI 自主提取，智能导航复杂站点并返回结构化 JSON 数据，支持自定义 Schema |
 | `defuddle` | 从网页提取干净 Markdown 内容，去除广告和导航噪音 |
 | `baoyu-url-to-markdown` | 通过 Chrome CDP 抓取任意 URL 并转为 Markdown，内置 X/Twitter、YouTube、Hacker News 等适配器 |
 | `baoyu-youtube-transcript` | 下载 YouTube 视频字幕/封面图，支持多语言、翻译、章节和说话人识别 |
