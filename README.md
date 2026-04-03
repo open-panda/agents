@@ -1,6 +1,6 @@
 # AI Agent Skills
 
-已安装的技能集合，涵盖浏览器自动化、内容创作、社交媒体发布、设计质量、飞书办公、Obsidian 笔记等多个领域。
+技能集合，涵盖浏览器自动化、内容创作、社交媒体发布、设计质量、飞书办公、Obsidian 笔记等多个领域。
 
 ---
 
@@ -21,7 +21,7 @@
 | `agent-browser` | AI 代理浏览器自动化 CLI，支持页面导航、表单填写、按钮点击、截图、数据提取等 |
 | `opencli` | 将任意网站或 Electron 应用变成 CLI，复用 Chrome 登录态，零风险，AI 驱动 |
 
-### 🎨 AI 图像生成
+### 🏞️ AI 图像生成
 | 技能 | 说明 |
 |------|------|
 | `baoyu-imagine` | 多后端 AI 图像生成，支持 OpenAI、Google、DashScope、MiniMax、Replicate 等，支持参考图和批量生成 |
@@ -35,7 +35,7 @@
 | `minimax-multimodal-toolkit` | MiniMax 多模态模型工具集，支持语音合成(TTS/声音克隆)、音乐生成、视频生成和图像生成 |
 | `editorial-card-screenshot` | 高密度编辑式 HTML 信息卡片生成，瑞士国际风格排版，支持 8 种宽高比（3:4/4:3/1:1/16:9 等），输出 HTML + PNG 截图 |
 
-### 📄 文档处理
+### 📋 文档处理
 | 技能 | 说明 |
 |------|------|
 | `minimax-docx` | 专业 DOCX 文档创建、编辑和格式化，使用 OpenXML SDK，支持从零创建/填充编辑/模板格式化 |
@@ -65,7 +65,7 @@
 | `slidev` | 面向开发者的 Markdown 幻灯片演示工具，支持 Vue 组件、代码高亮、动画和交互 |
 | `baoyu-slide-deck` | 从内容生成专业幻灯片图片，支持 16+ 种风格预设，输出 PPTX/PDF |
 
-### 🎯 前端设计 & UX
+### 🎨 前端设计 & UX
 | 技能 | 说明 |
 |------|------|
 | `frontend-design` | 生成高品质、有设计感的前端界面代码，避免 AI 模板化审美 |
@@ -91,7 +91,7 @@
 | `extract` | 提取并整合可复用组件、设计 token 和模式到设计系统 |
 | `overdrive` | 突破常规极限的技术实现——着色器、弹簧物理、滚动驱动动画、60fps 动效 |
 
-### 📁 飞书/Lark
+### 💼 飞书/Lark
 | 技能 | 说明 |
 |------|------|
 | `lark-shared` | 飞书 CLI 共享基础：应用配置初始化、认证登录、身份切换、权限管理 |
@@ -115,7 +115,7 @@
 | `lark-workflow-meeting-summary` | 会议纪要整理工作流：汇总指定时间范围内的会议纪要并生成结构化报告 |
 | `lark-workflow-standup-report` | 日程待办摘要：生成指定日期的日程与未完成任务摘要 |
 
-### 💭 Obsidian
+### 📚 Obsidian
 | 技能 | 说明 |
 |------|------|
 | `obsidian-cli` | 命令行操作 Obsidian 笔记库：读写笔记、搜索、管理任务/属性，支持插件开发调试 |
