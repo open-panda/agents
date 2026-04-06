@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>问题分析报告 - {{PROCESS_NAME}}</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-sidebar: #1a1625;
+    --bg-sidebar-hover: #2d2640;
+    --bg-card: #ffffff;
+    --bg-stack: #1e1e2e;
+    --text-primary: #1a1a2e;
+    --text-secondary: #64748b;
+    --text-sidebar: #c4b5d4;
+    --text-sidebar-active: #ffffff;
+    --text-stack: #cdd6f4;
+    --border-color: #e2e8f0;
+    --accent: #8b5cf6;
+    --accent-light: #f5f3ff;
+    --crash: #ef4444;
+    --crash-bg: #fef2f2;
+    --crash-line: #dc2626;
+    --success: #10b981;
+    --success-bg: #ecfdf5;
+    --warning: #f59e0b;
+    --warning-bg: #fffbeb;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+    --info: #3b82f6;
+    --info-bg: #eff6ff;
+    --confidence-high: #10b981;
+    --confidence-medium: #f59e0b;
+    --confidence-low: #ef4444;
+    --frame-app: #8b5cf6;
+    --frame-sys: #64748b;
+    --frame-crash: #ef4444;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+    --radius: 8px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #0f0d1a;
+      --bg-secondary: #1a1625;
+      --bg-sidebar: #0a0812;
+      --bg-sidebar-hover: #1a1625;
+      --bg-card: #1a1625;
+      --text-primary: #e2e0f0;
+      --text-secondary: #8b85a0;
+      --border-color: #2d2640;
+      --accent-light: #1a1625;
+      --crash-bg: #2d1015;
+      --success-bg: #0a2918;
+      --warning-bg: #2d2006;
+      --danger-bg: #2d1015;
+      --info-bg: #0a1a2d;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 280px;
+    background: var(--bg-sidebar);
+    padding: 24px 0;
+    overflow-y: auto;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-header {
+    padding: 0 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-header h2 {
+    color: var(--text-sidebar-active);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-header .subtitle {
+    color: var(--text-sidebar);
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  .sidebar-header .crash-signal {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 3px 10px;
+    background: var(--crash);
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+  }
+
+  .nav-section { padding: 0 12px; margin-bottom: 8px; }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    color: var(--text-sidebar);
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .nav-link:hover { background: var(--bg-sidebar-hover); color: var(--text-sidebar-active); }
+  .nav-link.active { background: var(--accent); color: white; font-weight: 600; }
+  .nav-icon { width: 20px; text-align: center; font-size: 14px; flex-shrink: 0; }
+
+  /* Main Content */
+  .main-content {
+    margin-left: 280px;
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 1200px;
+  }
+
+  /* Report Header */
+  .report-header {
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .report-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+
+  .crash-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--crash-bg);
+    border: 1px solid var(--crash);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+
+  .crash-banner .signal {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--crash);
+  }
+
+  .crash-banner .desc {
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  .report-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  .report-meta-item { display: flex; align-items: center; gap: 6px; }
+
+  /* Section Styles */
+  .section {
+    margin-bottom: 48px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .icon { font-size: 20px; }
+
+  .subsection-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 24px 0 12px;
+    color: var(--text-primary);
+  }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .info-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+
+  .info-item .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .info-item .value {
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+  }
+
+  /* Stack Trace */
+  .stack-trace {
+    background: var(--bg-stack);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin: 16px 0;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text-stack);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .stack-frame {
+    padding: 2px 0;
+    white-space: nowrap;
+  }
+
+  .stack-frame.crash-frame {
+    background: rgba(239, 68, 68, 0.15);
+    border-left: 3px solid var(--crash);
+    padding-left: 12px;
+    margin-left: -12px;
+    font-weight: 600;
+  }
+
+  .stack-frame.app-frame {
+    color: #c4b5fd;
+  }
+
+  .stack-frame.sys-frame {
+    color: #64748b;
+  }
+
+  .stack-frame .frame-num {
+    color: #64748b;
+    display: inline-block;
+    width: 32px;
+  }
+
+  .stack-frame .func-name { color: #a5d8ff; }
+  .stack-frame .file-path { color: #94a3b8; }
+  .stack-frame.crash-frame .func-name { color: #fca5a5; }
+
+  /* Tables */
+  .table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+  thead { background: var(--bg-secondary); }
+
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: var(--accent-light); }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .badge-high, .badge-danger { background: var(--danger-bg); color: var(--danger); }
+  .badge-medium, .badge-warning { background: var(--warning-bg); color: var(--warning); }
+  .badge-low, .badge-success { background: var(--success-bg); color: var(--success); }
+  .badge-info { background: var(--info-bg); color: var(--info); }
+
+  .confidence-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .confidence-high { background: var(--success-bg); color: var(--confidence-high); }
+  .confidence-medium { background: var(--warning-bg); color: var(--confidence-medium); }
+  .confidence-low { background: var(--danger-bg); color: var(--confidence-low); }
+
+  .confidence-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* Call Flow */
+  .call-flow {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 16px 0;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border-color);
+  }
+
+  .flow-step:last-child { border-bottom: none; }
+
+  .flow-step .step-num {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .flow-step.crash-step .step-num {
+    background: var(--crash);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+  }
+
+  .flow-step .step-content { flex: 1; }
+
+  .flow-step .step-label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .flow-step .step-detail {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  /* Diff / Code Fix */
+  .code-diff {
+    background: var(--bg-stack);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 12px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    color: var(--text-stack);
+  }
+
+  .diff-line { white-space: pre; }
+  .diff-add { color: #a6e3a1; background: rgba(166,227,161,0.1); }
+  .diff-del { color: #f38ba8; background: rgba(243,139,168,0.1); }
+  .diff-ctx { color: #6c7086; }
+
+  /* Root Cause Box */
+  .root-cause-box {
+    border: 2px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 16px 0;
+    background: var(--accent-light);
+  }
+
+  .root-cause-box h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .root-cause-box p {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* Solution Cards */
+  .solution-card {
+    border-left: 4px solid var(--accent);
+    padding: 20px;
+    margin-bottom: 16px;
+    background: var(--bg-card);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .solution-card.immediate { border-left-color: var(--crash); }
+  .solution-card.proper { border-left-color: var(--accent); }
+  .solution-card.preventive { border-left-color: var(--success); }
+
+  .solution-card h4 {
+    font-size: 15px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 16px 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding: 10px 0 10px 20px;
+    border-bottom: 1px dashed var(--border-color);
+  }
+
+  .timeline-item:last-child { border-bottom: none; }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px; top: 14px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg-primary);
+  }
+
+  .timeline-item.crash-event::before {
+    background: var(--crash);
+    width: 12px; height: 12px;
+    left: -25px;
+  }
+
+  .timeline-item .time {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .timeline-item .event {
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  /* Footer */
+  .report-footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* Print */
+  @media print {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; padding: 20px; }
+    .card, .table-wrapper, .stack-trace { break-inside: avoid; }
+    body { background: white; color: black; }
+    .crash-banner { border: 2px solid #ef4444; }
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; padding: 20px 16px; }
+    .info-grid { grid-template-columns: 1fr 1fr; }
+    .mobile-menu-btn { display: block !important; }
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 16px; left: 16px;
+    z-index: 200;
+    background: var(--bg-sidebar);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <!--
+    HTML Report Template for Issue Analysis
+    ========================================
+    This template defines the visual structure for crash/issue analysis reports.
+    When generating the actual report, replace placeholder content with real data.
+
+    Key CSS classes for content:
+    - .crash-banner: Crash signal banner at top
+    - .info-grid > .info-item: Basic info grid
+    - .stack-trace > .stack-frame: Stack trace display
+      - .crash-frame: The crashing frame (highlighted red)
+      - .app-frame: Application frames (highlighted purple)
+      - .sys-frame: System/library frames (gray)
+    - .confidence-badge .confidence-high/medium/low: Confidence ratings
+    - .call-flow > .flow-step: Call flow visualization
+      - .crash-step: The step where crash occurs
+    - .code-diff > .diff-add/.diff-del/.diff-ctx: Code diff display
+    - .solution-card.immediate/proper/preventive: Fix recommendations
+    - .timeline > .timeline-item: Event timeline
+      - .crash-event: The crash event in timeline
+    - .root-cause-box: Highlighted root cause summary
+  -->
+
+  <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h2>{{PROCESS_NAME}}</h2>
+      <div class="subtitle">问题分析报告</div>
+      <div class="crash-signal">{{CRASH_SIGNAL}}</div>
+    </div>
+    <div class="nav-section">
+      <a class="nav-link active" href="#basic-info">
+        <span class="nav-icon">&#128203;</span> 基本信息
+      </a>
+      <a class="nav-link" href="#core-data">
+        <span class="nav-icon">&#128165;</span> 核心数据
+      </a>
+      <a class="nav-link" href="#deep-analysis">
+        <span class="nav-icon">&#128269;</span> 深度分析
+      </a>
+      <a class="nav-link" href="#call-flow">
+        <span class="nav-icon">&#128260;</span> 调用流程
+      </a>
+      <a class="nav-link" href="#solution">
+        <span class="nav-icon">&#128295;</span> 解决方案
+      </a>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <header class="report-header">
+      <h1>问题分析报告</h1>
+      <div class="crash-banner">
+        <span class="signal">{{CRASH_SIGNAL}}</span>
+        <span class="desc">{{CRASH_DESCRIPTION}}</span>
+      </div>
+      <div class="report-meta">
+        <span class="report-meta-item">&#128197; {{CRASH_TIME}}</span>
+        <span class="report-meta-item">&#9881; {{PROCESS_NAME}} (PID: {{PID}})</span>
+        <span class="report-meta-item">&#128187; {{PLATFORM}}</span>
+      </div>
+    </header>
+
+    <!-- Section: Basic Information -->
+    <section class="section" id="basic-info">
+      <h2 class="section-title"><span class="icon">&#128203;</span> 基本信息</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="label">进程</div>
+          <div class="value">{{PROCESS_NAME}}</div>
+        </div>
+        <div class="info-item">
+          <div class="label">PID</div>
+          <div class="value">{{PID}}</div>
+        </div>
+        <div class="info-item">
+          <div class="label">崩溃时间</div>
+          <div class="value">{{CRASH_TIME}}</div>
+        </div>
+        <div class="info-item">
+          <div class="label">系统平台</div>
+          <div class="value">{{PLATFORM}}</div>
+        </div>
+        <div class="info-item">
+          <div class="label">构建版本</div>
+          <div class="value">{{BUILD_VERSION}}</div>
+        </div>
+        <div class="info-item">
+          <div class="label">崩溃信号</div>
+          <div class="value" style="color:var(--crash)">{{CRASH_SIGNAL}}</div>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">事件时间线</h3>
+      <div class="timeline">
+        <!-- {{TIMELINE_ITEMS}} -->
+        <div class="timeline-item">
+          <div class="time">{{TIME}}</div>
+          <div class="event">{{EVENT}}</div>
+        </div>
+        <div class="timeline-item crash-event">
+          <div class="time">{{CRASH_TIME}}</div>
+          <div class="event"><strong>CRASH</strong> - {{CRASH_DESCRIPTION}}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Core Data -->
+    <section class="section" id="core-data">
+      <h2 class="section-title"><span class="icon">&#128165;</span> 核心数据</h2>
+
+      <h3 class="subsection-title">崩溃堆栈</h3>
+      <div class="stack-trace">
+        <!-- {{STACK_FRAMES}} - Example: -->
+        <div class="stack-frame crash-frame">
+          <span class="frame-num">#0</span>
+          <span class="func-name">{{FUNCTION}}</span> at <span class="file-path">{{FILE}}:{{LINE}}</span>
+        </div>
+        <div class="stack-frame app-frame">
+          <span class="frame-num">#1</span>
+          <span class="func-name">{{FUNCTION}}</span> at <span class="file-path">{{FILE}}:{{LINE}}</span>
+        </div>
+        <div class="stack-frame sys-frame">
+          <span class="frame-num">#2</span>
+          <span class="func-name">{{FUNCTION}}</span> at <span class="file-path">{{FILE}}:{{LINE}}</span>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">关键帧分析</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>帧</th><th>函数</th><th>文件</th><th>行号</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <!-- {{KEY_FRAMES}} -->
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subsection-title">线程信息</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>线程</th><th>状态</th><th>角色</th></tr>
+          </thead>
+          <tbody>
+            <!-- {{THREAD_INFO}} -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section: Deep Analysis -->
+    <section class="section" id="deep-analysis">
+      <h2 class="section-title"><span class="icon">&#128269;</span> 深度分析</h2>
+
+      <h3 class="subsection-title">根本原因</h3>
+      <div class="root-cause-box">
+        <h3>
+          <span>&#127919;</span> 根因分析
+          <span class="confidence-badge confidence-{{CONFIDENCE}}">
+            <span class="confidence-dot"></span> 可信度: {{CONFIDENCE_LABEL}}
+          </span>
+        </h3>
+        <p>{{ROOT_CAUSE_DESCRIPTION}}</p>
+      </div>
+
+      <h3 class="subsection-title">直接原因</h3>
+      <div class="card">
+        <p>{{DIRECT_CAUSE}}</p>
+      </div>
+
+      <h3 class="subsection-title">深层原因</h3>
+      <div class="card">
+        <p>{{UNDERLYING_CAUSE}}</p>
+      </div>
+
+      <h3 class="subsection-title">关联文件</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>文件</th><th>角色</th><th>关键行</th><th>关联度</th></tr>
+          </thead>
+          <tbody>
+            <!-- {{RELATED_FILES}} -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section: Call Flow -->
+    <section class="section" id="call-flow">
+      <h2 class="section-title"><span class="icon">&#128260;</span> 调用流程</h2>
+      <div class="call-flow">
+        <!-- {{FLOW_STEPS}} - Example: -->
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-label">{{STEP_LABEL}}</div>
+            <div class="step-detail">{{FUNCTION}} at {{FILE}}:{{LINE}}</div>
+          </div>
+        </div>
+        <div class="flow-step crash-step">
+          <div class="step-num">&#10007;</div>
+          <div class="step-content">
+            <div class="step-label">CRASH: {{CRASH_LABEL}}</div>
+            <div class="step-detail">{{FUNCTION}} at {{FILE}}:{{LINE}}</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">变量状态分析</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>变量</th><th>期望状态</th><th>实际状态</th><th>证据</th></tr>
+          </thead>
+          <tbody>
+            <!-- {{VARIABLE_STATE}} -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section: Solution -->
+    <section class="section" id="solution">
+      <h2 class="section-title"><span class="icon">&#128295;</span> 解决方案</h2>
+
+      <div class="solution-card immediate">
+        <h4>&#128680; 紧急修复 <span class="confidence-badge confidence-{{FIX_CONFIDENCE}}"><span class="confidence-dot"></span> {{FIX_CONFIDENCE_LABEL}}</span></h4>
+        <p>{{IMMEDIATE_FIX_DESCRIPTION}}</p>
+        <div class="code-diff">
+          <!-- {{IMMEDIATE_FIX_DIFF}} -->
+          <div class="diff-line diff-del">- {{OLD_CODE}}</div>
+          <div class="diff-line diff-add">+ {{NEW_CODE}}</div>
+        </div>
+        <p><strong>修改文件:</strong></p>
+        <ul>
+          <!-- {{IMMEDIATE_FIX_FILES}} -->
+        </ul>
+      </div>
+
+      <div class="solution-card proper">
+        <h4>&#128736; 完善修复 <span class="confidence-badge confidence-{{PROPER_CONFIDENCE}}"><span class="confidence-dot"></span> {{PROPER_CONFIDENCE_LABEL}}</span></h4>
+        <p>{{PROPER_FIX_DESCRIPTION}}</p>
+        <!-- {{PROPER_FIX_STEPS}} -->
+      </div>
+
+      <div class="solution-card preventive">
+        <h4>&#128737; 预防措施</h4>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>措施</th><th>工作量</th><th>影响</th><th>说明</th></tr>
+            </thead>
+            <tbody>
+              <!-- {{PREVENTIVE_MEASURES}} -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">可信度评估</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>结论</th><th>可信度</th><th>依据</th></tr>
+          </thead>
+          <tbody>
+            <!-- {{CONFIDENCE_TABLE}} -->
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subsection-title">待进一步调查</h3>
+      <div class="card">
+        <ul>
+          <!-- {{FURTHER_INVESTIGATION}} -->
+        </ul>
+      </div>
+    </section>
+
+    <footer class="report-footer">
+      <p>Generated by Issue Analysis Skill &mdash; {{DATE}}</p>
+    </footer>
+  </main>
+
+  <script>
+    // Highlight active nav on scroll
+    const sections = document.querySelectorAll('.section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => link.classList.remove('active'));
+          const id = entry.target.getAttribute('id');
+          const activeLink = document.querySelector(`.nav-link[href="#${id}"]`);
+          if (activeLink) activeLink.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(section => observer.observe(section));
+  </script>
+</body>
+</html>

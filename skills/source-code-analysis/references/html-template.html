@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{PROJECT_NAME}} - 项目源码分析报告</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-sidebar: #1e293b;
+    --bg-sidebar-hover: #334155;
+    --bg-card: #ffffff;
+    --text-primary: #1a1a2e;
+    --text-secondary: #64748b;
+    --text-sidebar: #cbd5e1;
+    --text-sidebar-active: #ffffff;
+    --border-color: #e2e8f0;
+    --accent: #3b82f6;
+    --accent-light: #eff6ff;
+    --success: #10b981;
+    --success-bg: #ecfdf5;
+    --warning: #f59e0b;
+    --warning-bg: #fffbeb;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+    --info: #6366f1;
+    --info-bg: #eef2ff;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+    --radius: 8px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-sidebar: #0c1222;
+      --bg-sidebar-hover: #1e293b;
+      --bg-card: #1e293b;
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --border-color: #334155;
+      --accent-light: #1e293b;
+      --success-bg: #052e1633;
+      --warning-bg: #42200633;
+      --danger-bg: #3b080833;
+      --info-bg: #1e1b4b33;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3);
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar Navigation */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 280px;
+    background: var(--bg-sidebar);
+    padding: 24px 0;
+    overflow-y: auto;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-header {
+    padding: 0 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-header h2 {
+    color: var(--text-sidebar-active);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-header .subtitle {
+    color: var(--text-sidebar);
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  .nav-section {
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    color: var(--text-sidebar);
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .nav-link:hover {
+    background: var(--bg-sidebar-hover);
+    color: var(--text-sidebar-active);
+  }
+
+  .nav-link.active {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+  }
+
+  .nav-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* Main Content */
+  .main-content {
+    margin-left: 280px;
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 1200px;
+  }
+
+  /* Report Header */
+  .report-header {
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .report-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+
+  .report-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  .report-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Section Styles */
+  .section {
+    margin-bottom: 48px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .icon { font-size: 20px; }
+
+  .subsection-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 24px 0 12px;
+    color: var(--text-primary);
+  }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+  }
+
+  .stat-card .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .stat-card .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Tables */
+  .table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead {
+    background: var(--bg-secondary);
+  }
+
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover { background: var(--accent-light); }
+
+  /* Severity Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .badge-high, .badge-danger {
+    background: var(--danger-bg);
+    color: var(--danger);
+  }
+
+  .badge-medium, .badge-warning {
+    background: var(--warning-bg);
+    color: var(--warning);
+  }
+
+  .badge-low, .badge-success {
+    background: var(--success-bg);
+    color: var(--success);
+  }
+
+  .badge-info {
+    background: var(--info-bg);
+    color: var(--info);
+  }
+
+  /* Code Blocks */
+  .code-block {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    white-space: pre;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* Architecture Diagram */
+  .arch-diagram {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 16px 0;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+    text-align: center;
+  }
+
+  /* Dependency Flow */
+  .dep-flow {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin: 16px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  /* Lists */
+  .feature-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .feature-list li {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .feature-list li:last-child { border-bottom: none; }
+
+  .feature-list .bullet {
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* Risk Items */
+  .risk-item {
+    border-left: 4px solid var(--border-color);
+    padding: 16px;
+    margin-bottom: 12px;
+    background: var(--bg-card);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .risk-item.risk-high { border-left-color: var(--danger); }
+  .risk-item.risk-medium { border-left-color: var(--warning); }
+  .risk-item.risk-low { border-left-color: var(--success); }
+
+  .risk-item h4 {
+    font-size: 15px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .risk-item p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  /* Footer */
+  .report-footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* Print Styles */
+  @media print {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; padding: 20px; }
+    .card, .table-wrapper { break-inside: avoid; }
+    body { background: white; color: black; }
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    .main-content {
+      margin-left: 0;
+      padding: 20px 16px;
+    }
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
+    .mobile-menu-btn {
+      display: block !important;
+    }
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 16px; left: 16px;
+    z-index: 200;
+    background: var(--bg-sidebar);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <!--
+    HTML Report Template for Source Code Analysis
+    ==============================================
+    This template defines the visual structure.
+    When generating the actual report, replace the placeholder content
+    with real analysis data following this structure.
+
+    Navigation sidebar items should match the sections in the report.
+    Use the CSS classes defined above for consistent styling:
+    - .badge-high / .badge-medium / .badge-low for severity
+    - .card / .card-grid / .stat-card for content cards
+    - .table-wrapper > table for data tables
+    - .code-block for code/diagram content
+    - .risk-item.risk-high/medium/low for risk entries
+    - .arch-diagram for architecture diagrams
+    - .dep-flow for dependency flow diagrams
+  -->
+
+  <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h2>{{PROJECT_NAME}}</h2>
+      <div class="subtitle">源码分析报告</div>
+    </div>
+    <div class="nav-section">
+      <a class="nav-link active" href="#overview">
+        <span class="nav-icon">&#128196;</span> 项目概览
+      </a>
+      <a class="nav-link" href="#tech-stack">
+        <span class="nav-icon">&#9881;</span> 技术栈
+      </a>
+      <a class="nav-link" href="#architecture">
+        <span class="nav-icon">&#127970;</span> 技术架构
+      </a>
+      <a class="nav-link" href="#modules">
+        <span class="nav-icon">&#128230;</span> 模块依赖
+      </a>
+      <a class="nav-link" href="#features">
+        <span class="nav-icon">&#11088;</span> 核心功能
+      </a>
+      <a class="nav-link" href="#quality">
+        <span class="nav-icon">&#9989;</span> 质量信号
+      </a>
+      <a class="nav-link" href="#risks">
+        <span class="nav-icon">&#9888;</span> 风险评估
+      </a>
+      <a class="nav-link" href="#recommendations">
+        <span class="nav-icon">&#128161;</span> 建议
+      </a>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <header class="report-header">
+      <h1>{{PROJECT_NAME}} 源码分析报告</h1>
+      <div class="report-meta">
+        <span class="report-meta-item">&#128197; 分析日期: {{DATE}}</span>
+        <span class="report-meta-item">&#128193; 路径: {{PROJECT_PATH}}</span>
+        <span class="report-meta-item">&#128296; 主要语言: {{PRIMARY_LANGUAGE}}</span>
+      </div>
+    </header>
+
+    <!-- Section: Project Overview -->
+    <section class="section" id="overview">
+      <h2 class="section-title"><span class="icon">&#128196;</span> 项目概览</h2>
+      <div class="card">
+        <p>{{PROJECT_THESIS}}</p>
+      </div>
+      <div class="card-grid">
+        <div class="stat-card">
+          <div class="stat-value">{{FILE_COUNT}}</div>
+          <div class="stat-label">源文件数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{LOC}}</div>
+          <div class="stat-label">代码行数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{LANGUAGE_COUNT}}</div>
+          <div class="stat-label">编程语言</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{DEP_COUNT}}</div>
+          <div class="stat-label">核心依赖</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Tech Stack -->
+    <section class="section" id="tech-stack">
+      <h2 class="section-title"><span class="icon">&#9881;</span> 技术栈</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>类别</th>
+              <th>技术</th>
+              <th>版本</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- {{TECH_STACK_ROWS}} -->
+            <tr>
+              <td>语言</td>
+              <td><code>{{LANG}}</code></td>
+              <td>{{VERSION}}</td>
+              <td>{{NOTES}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section: Architecture -->
+    <section class="section" id="architecture">
+      <h2 class="section-title"><span class="icon">&#127970;</span> 技术架构</h2>
+      <h3 class="subsection-title">架构模式</h3>
+      <div class="card">
+        <p>{{ARCHITECTURE_PATTERN}}</p>
+      </div>
+      <h3 class="subsection-title">分层结构</h3>
+      <div class="arch-diagram">{{LAYER_DIAGRAM}}</div>
+      <h3 class="subsection-title">入口点</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>入口</th><th>文件</th><th>用途</th></tr>
+          </thead>
+          <tbody>
+            <!-- {{ENTRY_POINT_ROWS}} -->
+          </tbody>
+        </table>
+      </div>
+      <h3 class="subsection-title">数据流</h3>
+      <div class="card">
+        <p>{{DATA_FLOW_DESCRIPTION}}</p>
+      </div>
+    </section>
+
+    <!-- Section: Module Map -->
+    <section class="section" id="modules">
+      <h2 class="section-title"><span class="icon">&#128230;</span> 模块依赖</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>模块</th>
+              <th>路径</th>
+              <th>职责</th>
+              <th>依赖</th>
+              <th>重要度</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- {{MODULE_ROWS}} -->
+          </tbody>
+        </table>
+      </div>
+      <h3 class="subsection-title">依赖关系图</h3>
+      <div class="dep-flow">{{DEPENDENCY_DIAGRAM}}</div>
+      <h3 class="subsection-title">耦合评估</h3>
+      <div class="card">
+        <!-- {{COUPLING_ASSESSMENT}} -->
+      </div>
+    </section>
+
+    <!-- Section: Core Features -->
+    <section class="section" id="features">
+      <h2 class="section-title"><span class="icon">&#11088;</span> 核心功能</h2>
+      <!-- For each feature, create a card like: -->
+      <div class="card">
+        <h3 class="subsection-title">{{FEATURE_NAME}}</h3>
+        <p><strong>用途:</strong> {{FEATURE_PURPOSE}}</p>
+        <p><strong>关键文件:</strong> <code>{{FEATURE_FILES}}</code></p>
+        <p><strong>复杂度:</strong> <span class="badge badge-{{COMPLEXITY}}">{{COMPLEXITY}}</span></p>
+      </div>
+    </section>
+
+    <!-- Section: Quality Signals -->
+    <section class="section" id="quality">
+      <h2 class="section-title"><span class="icon">&#9989;</span> 质量信号</h2>
+      <h3 class="subsection-title">测试覆盖</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>指标</th><th>状态</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <!-- {{TEST_ROWS}} -->
+          </tbody>
+        </table>
+      </div>
+      <h3 class="subsection-title">文档质量</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>文档</th><th>状态</th><th>质量</th></tr>
+          </thead>
+          <tbody>
+            <!-- {{DOC_ROWS}} -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section: Risk Assessment -->
+    <section class="section" id="risks">
+      <h2 class="section-title"><span class="icon">&#9888;</span> 风险评估</h2>
+      <!-- For each risk: -->
+      <div class="risk-item risk-high">
+        <h4><span class="badge badge-high">HIGH</span> {{RISK_TITLE}}</h4>
+        <p><strong>类别:</strong> {{RISK_CATEGORY}}</p>
+        <p><strong>证据:</strong> <code>{{RISK_EVIDENCE}}</code></p>
+        <p><strong>影响:</strong> {{RISK_IMPACT}}</p>
+      </div>
+    </section>
+
+    <!-- Section: Recommendations -->
+    <section class="section" id="recommendations">
+      <h2 class="section-title"><span class="icon">&#128161;</span> 建议</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>优先级</th><th>操作</th><th>工作量</th><th>影响</th></tr>
+          </thead>
+          <tbody>
+            <!-- {{RECOMMENDATION_ROWS}} -->
+          </tbody>
+        </table>
+      </div>
+      <h3 class="subsection-title">值得保持的优点</h3>
+      <div class="card">
+        <ul class="feature-list">
+          <!-- {{STRENGTH_ITEMS}} -->
+        </ul>
+      </div>
+    </section>
+
+    <footer class="report-footer">
+      <p>Generated by Source Code Analysis Skill &mdash; {{DATE}}</p>
+    </footer>
+  </main>
+
+  <script>
+    // Highlight active nav item on scroll
+    const sections = document.querySelectorAll('.section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => link.classList.remove('active'));
+          const id = entry.target.getAttribute('id');
+          const activeLink = document.querySelector(`.nav-link[href="#${id}"]`);
+          if (activeLink) activeLink.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(section => observer.observe(section));
+  </script>
+</body>
+</html>
