@@ -71,9 +71,9 @@ Map the project's architectural structure and how it actually runs:
 
 1. **Architecture pattern**: Monolith, microservices, modular monolith, monorepo, library, CLI, serverless, etc.
 2. **Execution flow**: How the project starts, builds, tests, and deploys. If commands disagree across files, call that out.
-3. **Layer structure**: Presentation, business logic, data access, infrastructure — and how cleanly they are separated in practice.
+3. **Layer structure**: Presentation, business logic, data access, infrastructure — and how cleanly they are separated in practice. **Generate a Mermaid diagram** (e.g., `graph TD` or `block-beta`) to visualize the layer relationships.
 4. **Entry points**: Main files, server startup, CLI entry, route definitions.
-5. **Data flow**: How a typical request or operation flows through the system end to end.
+5. **Data flow**: How a typical request or operation flows through the system end to end. **Generate a Mermaid diagram** (e.g., `flowchart LR` or `sequenceDiagram`) to visualize the end-to-end flow.
 
 ### Phase 4: Core Modules
 
@@ -135,7 +135,7 @@ The report must contain these sections, in order:
 1. **Project Thesis** — Names the project's real purpose and design philosophy. Does not restate the README.
 2. **Repository Shape** — Structured map of how the repository is divided. Use tiered tables or a text diagram. Omit for single-package or very small projects.
 3. **Tech Stack** — Languages, frameworks, key dependencies — with context on why each matters architecturally.
-4. **Architecture Design** — Pattern, layer structure, execution flow, entry points, data flow.
+4. **Architecture Design** — Pattern, layer structure (with Mermaid diagram), execution flow, entry points, data flow (with Mermaid diagram).
 5. **Core Modules** — The 3-7 modules that own the project's core behavior. For each: what it does, why it matters, what concrete files define it. Explain consequence, not just content.
 6. **Distinctive Design Decisions** — The 4-7 non-obvious choices that make this codebase unusual. Each must be connected to its consequence.
 7. **Quality Signals & Risks** — Test coverage, CI, documentation, dependency hygiene, risk table, and Commercial & Reuse Viability.
@@ -155,6 +155,7 @@ The HTML report must:
 - Be printable with good formatting
 - Render well on both desktop and mobile
 - On mobile: sidebar collapses by default, a hamburger button reveals it, clicking a nav link closes the sidebar automatically
+- **Mermaid diagrams**: Use `<pre class="mermaid">` blocks for architecture layer diagrams and data flow diagrams. The template already includes an inline copy of Mermaid.js that auto-renders these blocks on page load with theme-aware styling (light/dark). Do NOT use external CDN links — the template is fully self-contained.
 
 ### Evidence Rules
 
