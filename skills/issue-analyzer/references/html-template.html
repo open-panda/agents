@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,29 +13,28 @@
     --bg-sidebar: #1a1625;
     --bg-sidebar-hover: #2d2640;
     --bg-card: #ffffff;
-    --bg-stack: #1e1e2e;
+    --bg-code: #f6f8fa;
     --text-primary: #1a1a2e;
     --text-secondary: #64748b;
     --text-sidebar: #c4b5d4;
     --text-sidebar-active: #ffffff;
     --text-sidebar-muted: #6b6080;
-    --text-stack: #cdd6f4;
+    --text-code: #1f2937;
     --border-color: #e2e8f0;
     --accent: #8b5cf6;
     --accent-light: #f5f3ff;
-    --crash: #ef4444;
-    --crash-bg: #fef2f2;
-    --success: #10b981;
-    --success-bg: #ecfdf5;
-    --warning: #f59e0b;
-    --warning-bg: #fffbeb;
-    --danger: #ef4444;
-    --danger-bg: #fef2f2;
+    --ok: #10b981;
+    --ok-bg: #ecfdf5;
+    --warn: #f59e0b;
+    --warn-bg: #fffbeb;
+    --error: #ef4444;
+    --error-bg: #fef2f2;
     --info: #3b82f6;
     --info-bg: #eff6ff;
+    --action: #a78bfa;
+    --action-bg: #f5f3ff;
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
     --radius: 8px;
     --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
     --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
@@ -43,24 +42,25 @@
   }
 
   [data-theme="dark"] {
-    --bg-primary: #0f0d1a;
-    --bg-secondary: #1a1625;
+    --bg-primary: #0f1117;
+    --bg-secondary: #161b22;
     --bg-sidebar: #0a0812;
     --bg-sidebar-hover: #1a1625;
-    --bg-card: #1a1625;
-    --text-primary: #e2e0f0;
-    --text-secondary: #8b85a0;
+    --bg-card: #161b22;
+    --bg-code: #0d1117;
+    --text-primary: #e1e4e8;
+    --text-secondary: #8b949e;
     --text-sidebar-muted: #4a4060;
-    --border-color: #2d2640;
+    --text-code: #c9d1d9;
+    --border-color: #30363d;
     --accent-light: #1a1625;
-    --crash-bg: #2d1015;
-    --success-bg: #0a291833;
-    --warning-bg: #2d200633;
-    --danger-bg: #2d101533;
-    --info-bg: #0a1a2d33;
+    --ok-bg: rgba(16,185,129,0.1);
+    --warn-bg: rgba(245,158,11,0.1);
+    --error-bg: rgba(239,68,68,0.1);
+    --info-bg: rgba(59,130,246,0.1);
+    --action-bg: rgba(167,139,250,0.1);
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
     --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
-    --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
     --overlay-bg: rgba(0,0,0,0.65);
   }
 
@@ -82,7 +82,7 @@
   .sidebar {
     position: fixed;
     left: 0; top: 0; bottom: 0;
-    width: 280px;
+    width: 260px;
     background: var(--bg-sidebar);
     display: flex;
     flex-direction: column;
@@ -116,7 +116,7 @@
     display: inline-block;
     margin-top: 8px;
     padding: 3px 10px;
-    background: var(--crash);
+    background: var(--error);
     color: white;
     border-radius: 4px;
     font-size: 12px;
@@ -124,7 +124,6 @@
     font-family: var(--font-mono);
   }
 
-  /* Scrollable nav */
   .sidebar-nav {
     flex: 1;
     overflow-y: auto;
@@ -154,32 +153,19 @@
   .nav-link.active { background: var(--accent); color: white; font-weight: 600; }
   .nav-icon { width: 18px; text-align: center; font-size: 13px; flex-shrink: 0; }
 
-  /* ===================== Sidebar Footer ===================== */
   .sidebar-footer {
     flex-shrink: 0;
     padding: 12px 16px;
     border-top: 1px solid rgba(255,255,255,0.08);
   }
 
-  /* Date on top, credit below — no emoji */
   .sidebar-meta {
     font-size: 11.5px;
     color: var(--text-sidebar-muted);
-    line-height: 1.6;
+    line-height: 1.5;
     margin-bottom: 10px;
   }
 
-  .sidebar-meta .meta-date {
-    display: block;
-    font-weight: 500;
-    color: var(--text-sidebar);
-  }
-
-  .sidebar-meta .meta-credit {
-    display: block;
-  }
-
-  /* Theme toggle button */
   .theme-toggle {
     display: flex;
     align-items: center;
@@ -196,15 +182,10 @@
     font-family: var(--font-sans);
   }
 
-  .theme-toggle:hover {
-    background: rgba(255,255,255,0.12);
-    color: var(--text-sidebar-active);
-  }
-
+  .theme-toggle:hover { background: rgba(255,255,255,0.12); color: var(--text-sidebar-active); }
   .theme-toggle .toggle-icon { font-size: 15px; }
   .theme-toggle .toggle-label { flex: 1; text-align: left; }
 
-  /* ===================== Sidebar Overlay (mobile) ===================== */
   .sidebar-overlay {
     display: none;
     position: fixed;
@@ -215,10 +196,10 @@
 
   /* ===================== Main Content ===================== */
   .main-content {
-    margin-left: 280px;
+    margin-left: 260px;
     flex: 1;
     padding: 40px 48px;
-    max-width: 1200px;
+    max-width: 1100px;
     min-width: 0;
     transition: margin-left 0.3s;
   }
@@ -242,8 +223,8 @@
     align-items: center;
     gap: 12px;
     padding: 14px 20px;
-    background: var(--crash-bg);
-    border: 1px solid var(--crash);
+    background: var(--error-bg);
+    border: 1px solid var(--error);
     border-radius: var(--radius);
     margin-bottom: 16px;
   }
@@ -252,13 +233,10 @@
     font-family: var(--font-mono);
     font-weight: 800;
     font-size: 18px;
-    color: var(--crash);
+    color: var(--error);
   }
 
-  .crash-banner .desc {
-    font-size: 14px;
-    color: var(--text-primary);
-  }
+  .crash-banner .banner-desc { font-size: 14px; }
 
   .report-meta {
     display: flex;
@@ -300,6 +278,13 @@
   ul, ol { padding-left: 1.5em; margin-bottom: 12px; }
   li { margin-bottom: 4px; }
 
+  h4 {
+    font-size: 14.5px;
+    font-weight: 600;
+    margin: 18px 0 6px;
+    color: var(--text-primary);
+  }
+
   /* ===================== Cards ===================== */
   .card {
     background: var(--bg-card);
@@ -310,6 +295,22 @@
     box-shadow: var(--shadow-sm);
   }
 
+  .card.highlight { border-color: var(--error); }
+  .card.success { border-color: var(--ok); }
+  .card.warning { border-color: var(--warn); }
+  .card.info-card { border-color: var(--info); }
+
+  .card h3 {
+    font-size: 15px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+
+  .card.highlight h3 { color: var(--error); }
+  .card.warning h3 { color: var(--warn); }
+  .card.success h3 { color: var(--ok); }
+
+  /* ===================== Info Grid ===================== */
   .info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -339,38 +340,171 @@
     font-family: var(--font-mono);
   }
 
-  /* ===================== Stack Trace ===================== */
-  .stack-trace {
-    background: var(--bg-stack);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin: 14px 0;
-    overflow-x: auto;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    line-height: 1.8;
-    color: var(--text-stack);
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-
-  .stack-frame { padding: 2px 0; white-space: nowrap; }
-
-  .stack-frame.crash-frame {
-    background: rgba(239, 68, 68, 0.15);
-    border-left: 3px solid var(--crash);
-    padding-left: 12px;
-    margin-left: -12px;
+  /* ===================== Badges & Tags ===================== */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
     font-weight: 600;
   }
 
-  .stack-frame.app-frame { color: #c4b5fd; }
-  .stack-frame.sys-frame { color: #64748b; }
-  .stack-frame .frame-num { color: #64748b; display: inline-block; width: 32px; }
-  .stack-frame .func-name { color: #a5d8ff; }
-  .stack-frame .file-path { color: #94a3b8; }
-  .stack-frame.crash-frame .func-name { color: #fca5a5; }
+  .badge-ok { background: var(--ok-bg); color: var(--ok); }
+  .badge-warn { background: var(--warn-bg); color: var(--warn); }
+  .badge-error { background: var(--error-bg); color: var(--error); }
+  .badge-info { background: var(--info-bg); color: var(--info); }
+  .badge-action { background: var(--action-bg); color: var(--action); }
 
-  /* ===================== Tables ===================== */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  .tag-root { background: rgba(239,68,68,0.2); color: var(--error); border: 1px solid var(--error); }
+
+  /* ===================== Phased Timeline ===================== */
+  /*
+   * Phased timeline: events grouped by phases (e.g., Phase 1: App Launch, Phase 2: Crash).
+   * Each phase has a heading and a vertical timeline with color-coded dots.
+   *
+   * Dot color variants via class on .tl-item:
+   *   .ok     → green   (normal events)
+   *   .warn   → yellow  (warning/suspicious events)
+   *   .error  → red     (error events)
+   *   .info   → blue    (configuration/environment events)
+   *   .action → purple  (user actions, triggers)
+   *   .bug    → red glow (root cause event)
+   */
+  .phase-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 20px 0 8px;
+    color: var(--accent);
+  }
+
+  .phase-title:first-of-type { margin-top: 0; }
+
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 8px 0 20px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 10px;
+    padding: 8px 14px;
+    background: var(--bg-code);
+    border-radius: 6px;
+    border-left: 3px solid var(--border-color);
+  }
+
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -23px; top: 14px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border-color);
+  }
+
+  /* Color variants */
+  .tl-item.ok { border-left-color: var(--ok); }
+  .tl-item.ok::before { background: var(--ok); }
+
+  .tl-item.warn { border-left-color: var(--warn); }
+  .tl-item.warn::before { background: var(--warn); }
+
+  .tl-item.error { border-left-color: var(--error); }
+  .tl-item.error::before { background: var(--error); }
+
+  .tl-item.info { border-left-color: var(--info); }
+  .tl-item.info::before { background: var(--info); }
+
+  .tl-item.action { border-left-color: var(--action); }
+  .tl-item.action::before { background: var(--action); }
+
+  .tl-item.bug {
+    border-left-color: var(--error);
+    background: var(--error-bg);
+  }
+  .tl-item.bug::before {
+    background: var(--error);
+    box-shadow: 0 0 8px rgba(239,68,68,0.6);
+    width: 12px; height: 12px;
+    left: -24px; top: 13px;
+  }
+
+  .tl-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .tl-desc {
+    font-size: 13.5px;
+    margin-top: 3px;
+  }
+
+  /* ===================== Call Chain ===================== */
+  /*
+   * Color-coded call chain with arrows between steps.
+   *
+   * Step color variants:
+   *   .step-trigger  → blue     (trigger source / entry point)
+   *   .step-normal   → green    (normal processing steps)
+   *   .step-process  → yellow   (intermediate processing)
+   *   .step-branch   → purple   (branch/decision points)
+   *   .step-abnormal → red      (abnormal branch / error path)
+   *   .step-result   → dark red (final crash / abnormal result, bold)
+   */
+  .callchain {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 14px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 2;
+  }
+
+  .callchain .step {
+    padding: 4px 12px;
+    margin: 2px 0;
+    border-radius: 4px;
+  }
+
+  .callchain .step-trigger { background: rgba(59,130,246,0.12); border-left: 3px solid var(--info); }
+  .callchain .step-normal { background: rgba(16,185,129,0.12); border-left: 3px solid var(--ok); }
+  .callchain .step-process { background: rgba(245,158,11,0.12); border-left: 3px solid var(--warn); }
+  .callchain .step-branch { background: rgba(167,139,250,0.12); border-left: 3px solid var(--action); }
+  .callchain .step-abnormal { background: rgba(239,68,68,0.12); border-left: 3px solid var(--error); }
+  .callchain .step-result {
+    background: rgba(239,68,68,0.2);
+    border-left: 3px solid var(--error);
+    font-weight: 700;
+  }
+
+  .callchain .arrow {
+    color: var(--text-secondary);
+    padding-left: 20px;
+    font-size: 12px;
+  }
+
+  /* ===================== Compare Table ===================== */
   .table-wrapper {
     overflow-x: auto;
     margin-bottom: 16px;
@@ -399,184 +533,22 @@
   }
 
   tr:last-child td { border-bottom: none; }
-  tr:hover { background: var(--accent-light); }
 
-  /* ===================== Badges ===================== */
-  .badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
+  .compare-table td:nth-child(2) { color: var(--ok); }
+  .compare-table td:nth-child(3) { color: var(--error); font-weight: 600; }
 
-  .badge-high, .badge-danger { background: var(--danger-bg); color: var(--danger); }
-  .badge-medium, .badge-warning { background: var(--warning-bg); color: var(--warning); }
-  .badge-low, .badge-success { background: var(--success-bg); color: var(--success); }
-  .badge-info { background: var(--info-bg); color: var(--info); }
-
-  .confidence-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .confidence-high { background: var(--success-bg); color: var(--success); }
-  .confidence-medium { background: var(--warning-bg); color: var(--warning); }
-  .confidence-low { background: var(--danger-bg); color: var(--danger); }
-
-  .confidence-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-
-  /* ===================== Root Cause Box ===================== */
-  .root-cause-box {
-    border: 2px solid var(--accent);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    margin: 14px 0;
-    background: var(--accent-light);
-  }
-
-  .root-cause-box h3 {
-    font-size: 15px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .root-cause-box p { font-size: 14.5px; line-height: 1.7; }
-
-  /* ===================== Analysis Cards (direct/underlying cause) ===================== */
-  .analysis-card {
-    border-left: 4px solid var(--accent);
-    padding: 16px 20px;
-    margin-bottom: 14px;
-    background: var(--bg-card);
-    border-radius: 0 var(--radius) var(--radius) 0;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .analysis-card.direct { border-left-color: var(--crash); }
-  .analysis-card.underlying { border-left-color: var(--warning); }
-  .analysis-card.contributing { border-left-color: var(--info); }
-
-  .analysis-card-title {
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .analysis-card p, .analysis-card ul { font-size: 14px; margin-bottom: 0; }
-
-  /* ===================== Call Flow ===================== */
-  .call-flow {
-    background: var(--bg-secondary);
+  /* ===================== Log / Code Blocks ===================== */
+  pre {
+    background: var(--bg-code);
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    padding: 20px 24px;
-    margin: 14px 0;
-  }
-
-  .flow-step {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 10px 0;
-    border-bottom: 1px dashed var(--border-color);
-  }
-
-  .flow-step:last-child { border-bottom: none; }
-
-  .step-num {
-    width: 28px; height: 28px;
-    background: var(--accent);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .flow-step.crash-step .step-num {
-    background: var(--crash);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
-  }
-
-  .step-content { flex: 1; }
-
-  .step-label {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 2px;
-  }
-
-  .step-detail {
-    font-size: 13px;
-    color: var(--text-secondary);
-    font-family: var(--font-mono);
-  }
-
-  /* ===================== Solution Cards ===================== */
-  .solution-card {
-    border-left: 4px solid var(--accent);
-    padding: 18px 20px;
-    margin-bottom: 14px;
-    background: var(--bg-card);
-    border-radius: 0 var(--radius) var(--radius) 0;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .solution-card.immediate { border-left-color: var(--crash); }
-  .solution-card.proper { border-left-color: var(--accent); }
-  .solution-card.preventive { border-left-color: var(--success); }
-
-  .solution-card h4 {
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* ===================== Code / Diff ===================== */
-  .code-diff {
-    background: var(--bg-stack);
-    border-radius: var(--radius);
-    padding: 16px 20px;
-    margin: 10px 0;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    line-height: 1.7;
+    padding: 14px 16px;
     overflow-x: auto;
-    color: var(--text-stack);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text-code);
+    margin: 10px 0;
   }
-
-  .diff-line { white-space: pre; }
-  .diff-add { color: #a6e3a1; background: rgba(166,227,161,0.08); }
-  .diff-del { color: #f38ba8; background: rgba(243,139,168,0.08); }
-  .diff-ctx { color: #6c7086; }
 
   code {
     font-family: var(--font-mono);
@@ -587,59 +559,145 @@
     border: 1px solid var(--border-color);
   }
 
-  /* ===================== Timeline ===================== */
-  /*
-   * Layout math (all measurements from .timeline outer-left edge):
-   *   .timeline padding-left: 32px  → items start at 32px
-   *   Vertical line: left: 11px, width: 2px → center at 12px
-   *   Normal dot:    left: -25px from item → 32-25=7px, width:10px → center at 12px  ✓
-   *   Crash dot:     left: -26px from item → 32-26=6px, width:12px → center at 12px  ✓
-   */
-  .timeline {
-    position: relative;
-    padding-left: 32px;
-    margin: 14px 0;
-  }
+  pre code { background: none; border: none; padding: 0; font-size: inherit; }
 
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 11px; top: 0; bottom: 0;
-    width: 2px;
-    background: var(--border-color);
-  }
+  /* Log syntax highlighting */
+  .log-time { color: var(--text-secondary); }
+  .log-tag { color: #79c0ff; font-weight: 600; }
+  .log-key { color: #ff7b72; font-weight: 700; }
+  .log-val { color: #3fb950; }
+  .log-warn { color: #d29922; font-weight: 600; }
 
-  .timeline-item {
-    position: relative;
-    padding: 10px 0 10px 0;
-    border-bottom: 1px dashed var(--border-color);
-  }
-
-  .timeline-item:last-child { border-bottom: none; }
-
-  .timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -25px; top: 14px;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 2px solid var(--bg-primary);
-  }
-
-  .timeline-item.crash-event::before {
-    background: var(--crash);
-    width: 12px; height: 12px;
-    left: -26px; top: 13px;
-  }
-
-  .timeline-item .time {
+  /* Stack trace in evidence */
+  .stack-trace {
+    background: var(--bg-code);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 10px 0;
+    overflow-x: auto;
     font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text-code);
+    border: 1px solid var(--border-color);
   }
 
-  .timeline-item .event { font-size: 14px; margin-top: 2px; }
+  .stack-frame { padding: 2px 0; white-space: nowrap; }
+  .stack-frame.crash-frame {
+    background: rgba(239, 68, 68, 0.15);
+    border-left: 3px solid var(--error);
+    padding-left: 12px;
+    margin-left: -12px;
+    font-weight: 600;
+  }
+  .stack-frame.app-frame { color: #c4b5fd; }
+  .stack-frame.sys-frame { color: #64748b; }
+  .stack-frame .frame-num { color: #64748b; display: inline-block; width: 36px; }
+  .stack-frame .func-name { color: #a5d8ff; }
+  .stack-frame .file-path { color: #94a3b8; }
+  .stack-frame.crash-frame .func-name { color: #fca5a5; }
+
+  /* Diff blocks */
+  .code-diff {
+    background: var(--bg-code);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 10px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    color: var(--text-code);
+  }
+
+  .diff-line { white-space: pre; }
+  .diff-add { color: #a6e3a1; background: rgba(166,227,161,0.08); }
+  .diff-del { color: #f38ba8; background: rgba(243,139,168,0.08); }
+  .diff-ctx { color: #6c7086; }
+
+  /* ===================== Evidence Items ===================== */
+  .evidence-item {
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    background: var(--bg-card);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .evidence-item.evidence-crash { border-left-color: var(--error); }
+  .evidence-item.evidence-warn { border-left-color: var(--warn); }
+  .evidence-item.evidence-info { border-left-color: var(--info); }
+
+  .evidence-item-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .evidence-number {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--accent-light);
+    color: var(--accent);
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+  }
+
+  .evidence-item.evidence-crash .evidence-number {
+    background: var(--error-bg);
+    color: var(--error);
+  }
+
+  .evidence-item.evidence-warn .evidence-number {
+    background: var(--warn-bg);
+    color: var(--warn);
+  }
+
+  .evidence-item.evidence-info .evidence-number {
+    background: var(--info-bg);
+    color: var(--info);
+  }
+
+  .evidence-item pre {
+    margin: 8px 0 0;
+  }
+
+  /* ===================== Fix Suggestions ===================== */
+  .suggestion {
+    padding: 14px 18px;
+    background: var(--ok-bg);
+    border: 1px solid var(--ok);
+    border-radius: var(--radius);
+    margin: 10px 0;
+  }
+
+  .suggestion.primary {
+    border-color: var(--info);
+    background: var(--info-bg);
+  }
+
+  .suggestion strong { display: block; margin-bottom: 4px; }
+
+  /* Preventive measures table inside card */
+  .card .table-wrapper { margin-top: 12px; }
+
+  /* ===================== Collapsible ===================== */
+  details { margin: 8px 0; }
+  details summary {
+    cursor: pointer;
+    color: var(--info);
+    font-size: 13px;
+    padding: 4px 0;
+  }
+  details summary:hover { text-decoration: underline; }
 
   /* ===================== Mobile Menu Button ===================== */
   .mobile-menu-btn {
@@ -661,7 +719,7 @@
   @media print {
     .sidebar, .mobile-menu-btn, .sidebar-overlay { display: none; }
     .main-content { margin-left: 0; padding: 20px; }
-    .card, .table-wrapper, .stack-trace, .call-flow { break-inside: avoid; }
+    .card, .table-wrapper, .stack-trace, .callchain { break-inside: avoid; }
     body { background: white; color: black; }
     .crash-banner { border: 2px solid #ef4444; }
   }
@@ -684,23 +742,33 @@
     ========================================
     Replace all {{PLACEHOLDER}} values with actual data when generating.
 
-    Placeholders:
-    - {{REPORT_TITLE}}   → Descriptive main h1, e.g. "MyApp Crash Analysis — SIGSEGV"
-    - {{PROCESS_NAME}}   → Concise process/app name (sidebar h2 and page title only)
-    - {{CRASH_SIGNAL}}   → Signal or exception type, e.g. "SIGSEGV", "ANR", "NullPointerException"
+    Structure (matches the problem-solving narrative):
+      1. Problem Overview  — What happened?
+      2. Event Timeline    — What led to the crash? (phased, color-coded)
+      3. Root Cause Analysis — Why did it happen? (direct cause + trigger + call chain + evidence)
+      4. Fix Recommendations — How to fix it?
 
-    Key CSS classes:
-    - .info-grid > .info-item: Basic info cards (add/remove freely)
-    - .crash-banner: Signal/exception banner in the header
-    - .stack-trace > .stack-frame: Stack frames
-        .crash-frame = red highlight  |  .app-frame = purple  |  .sys-frame = gray
-    - .analysis-card.direct / .underlying / .contributing: Cause analysis cards
-    - .confidence-badge .confidence-high / .confidence-medium / .confidence-low
-    - .call-flow > .flow-step (.crash-step = pulsing red dot)
-    - .code-diff > .diff-add / .diff-del / .diff-ctx: Code diff lines
-    - .solution-card.immediate / .proper / .preventive: Fix recommendations
-    - .timeline > .timeline-item (.crash-event = larger red dot)
-    - .root-cause-box: Highlighted root cause summary box
+    Key placeholders:
+      {{REPORT_TITLE}}   → Descriptive h1, e.g. "PartitionAlloc VA Space Reservation Failure Crash"
+      {{PROCESS_NAME}}   → Concise process/app name (sidebar h2 and page title)
+      {{CRASH_SIGNAL}}   → Signal or exception type, e.g. "SIGSEGV", "NullPointerException"
+      {{ANALYSIS_DATE}}  → Date of analysis
+      {{CRASH_TIME}}     → Crash timestamp
+      {{PID}}            → Process ID
+      {{PLATFORM}}       → OS/Platform info
+
+    Key CSS classes for timeline items (.tl-item):
+      .ok / .warn / .error / .info / .action / .bug
+    Key CSS classes for call chain steps (.step):
+      .step-trigger / .step-normal / .step-process / .step-branch / .step-abnormal / .step-result
+    Key CSS classes for cards (.card):
+      .highlight (red) / .warning (yellow) / .success (green) / .info-card (blue)
+    Key CSS classes for badges (.badge):
+      .badge-ok / .badge-warn / .badge-error / .badge-info / .badge-action
+    Key CSS classes for log syntax highlighting:
+      .log-time (gray) / .log-tag (blue) / .log-key (red bold) / .log-val (green) / .log-warn (yellow)
+    Key CSS classes for stack frames (.stack-frame):
+      .crash-frame (red) / .app-frame (purple) / .sys-frame (gray)
   -->
 
   <button class="mobile-menu-btn" id="menuBtn" aria-label="打开导航">&#9776;</button>
@@ -708,10 +776,7 @@
 
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <!-- {{PROCESS_NAME}}: concise process/app name only -->
       <h2>{{PROCESS_NAME}}</h2>
-      <div class="subtitle">问题分析报告</div>
-      <!-- Use signal name for crashes; use short descriptor for ANR/OOM/exception -->
       <div class="crash-signal">{{CRASH_SIGNAL}}</div>
     </div>
 
@@ -719,62 +784,55 @@
       <a class="nav-link active" href="#basic-info">
         <span class="nav-icon">&#128203;</span> 基本信息
       </a>
-      <a class="nav-link" href="#core-data">
-        <span class="nav-icon">&#128165;</span> 核心数据
+      <a class="nav-link" href="#event-timeline">
+        <span class="nav-icon">&#128197;</span> 事件时间线
       </a>
-      <a class="nav-link" href="#deep-analysis">
-        <span class="nav-icon">&#128269;</span> 深度分析
+      <a class="nav-link" href="#root-cause">
+        <span class="nav-icon">&#128269;</span> 根因分析
       </a>
-      <a class="nav-link" href="#call-flow">
-        <span class="nav-icon">&#128260;</span> 调用流程
-      </a>
-      <a class="nav-link" href="#solution">
-        <span class="nav-icon">&#128295;</span> 解决方案
+      <a class="nav-link" href="#fix-recommendations">
+        <span class="nav-icon">&#128295;</span> 修复建议
       </a>
     </div>
 
     <div class="sidebar-footer">
-      <!-- Date on top, credit below — no emoji icons -->
       <div class="sidebar-meta">
-        <span class="meta-date">{{ANALYSIS_DATE}}</span>
-        <span class="meta-credit">Generated by Issue Analyzer</span>
+        <div>{{ANALYSIS_DATE}}</div>
+        <div style="margin-top:4px;">Generated by Issue Analyzer</div>
       </div>
-      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
-        <span class="toggle-icon" id="themeIcon">&#9790;</span>
-        <span class="toggle-label" id="themeLabel">切换暗色模式</span>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
+        <span class="toggle-icon" id="themeIcon">&#9788;</span>
+        <span class="toggle-label" id="themeLabel">切换亮色模式</span>
       </button>
     </div>
   </nav>
 
   <main class="main-content">
+
+    <!-- Report Header -->
     <header class="report-header">
-      <!--
-        {{REPORT_TITLE}}: descriptive title for the report, e.g.:
-        "MyApp Crash Analysis — SIGSEGV"
-        "ANR Analysis — com.example.myapp"
-        "NullPointerException — UserProfileActivity"
-        Keep it specific so the reader immediately knows what this report is about.
-      -->
       <h1>{{REPORT_TITLE}}</h1>
-      <div class="crash-banner">
-        <span class="signal">{{CRASH_SIGNAL}}</span>
-        <span class="desc">{{CRASH_DESCRIPTION}}</span>
-      </div>
-      <div class="report-meta">
-        <span class="report-meta-item">&#128197; {{CRASH_TIME}}</span>
-        <span class="report-meta-item">&#9881; {{PROCESS_NAME}} (PID: {{PID}})</span>
-        <span class="report-meta-item">&#128187; {{PLATFORM}}</span>
+
+      <!-- Root cause summary — signal badge in top-right corner -->
+      <div class="card highlight" style="margin-top: 12px; position: relative;">
+        <span class="tag tag-root">ROOT CAUSE</span>
+        <span class="badge badge-error" style="position: absolute; top: 16px; right: 18px; font-family: var(--font-mono);">{{CRASH_SIGNAL}} ({{CRASH_SIGNAL_DETAIL}})</span>
+        <p style="margin-top:8px;">
+          {{ROOT_CAUSE_SUMMARY}}
+        </p>
       </div>
     </header>
 
-    <!-- Section: Basic Information -->
+    <!-- ============================== -->
+    <!-- Section 1: 基本信息            -->
+    <!-- ============================== -->
     <section class="section" id="basic-info">
       <h2 class="section-title"><span class="icon">&#128203;</span> 基本信息</h2>
 
       <!--
-        info-grid: include only fields present in the crash data; omit anything unavailable.
-        Common fields: process name, PID, crash time, platform, build version, signal/exception type.
-        Add more .info-item blocks as appropriate (fault address, architecture, device model, etc.).
+        info-grid: include only fields that are available.
+        Add or remove .info-item blocks as needed.
+        Common fields: 进程, PID, 崩溃时间, 系统平台, 构建版本, 崩溃信号, 设备, 故障地址.
       -->
       <div class="info-grid">
         <div class="info-item">
@@ -799,238 +857,290 @@
         </div>
         <div class="info-item">
           <div class="label">崩溃信号</div>
-          <div class="value" style="color:var(--crash)">{{CRASH_SIGNAL}}</div>
+          <div class="value" style="color:var(--error)">{{CRASH_SIGNAL}}</div>
         </div>
       </div>
+    </section>
 
-      <h3 class="subsection-title">事件时间线</h3>
+    <!-- ============================== -->
+    <!-- Section 2: 事件时间线          -->
+    <!-- ============================== -->
+    <section class="section" id="event-timeline">
+      <h2 class="section-title"><span class="icon">&#128197;</span> 事件时间线</h2>
+
+      <!--
+        Phased timeline: group events into logical phases.
+        Phase count and titles are flexible — adjust based on actual analysis.
+
+        Each phase has:
+          <h3 class="phase-title">Phase N: Title</h3>
+          <div class="timeline"> ... </div>
+
+        Each event (.tl-item) has a color variant class:
+          .ok      → green   (normal events)
+          .warn    → yellow  (warnings, non-fatal errors)
+          .error   → red     (error events)
+          .info    → blue    (configuration, environment events)
+          .action  → purple  (user actions, triggers)
+          .bug     → red glow (THE root cause event)
+
+        Inside each event:
+          <div class="tl-time">HH:MM:SS.mmm</div>
+          <div class="tl-desc">Description with <code>code refs</code> and <span class="badge badge-ok">status</span></div>
+      -->
+
+      <h3 class="phase-title">Phase 1: {{PHASE_1_TITLE}}</h3>
       <div class="timeline">
-        <!-- {{TIMELINE_ITEMS}} -->
-        <div class="timeline-item">
-          <div class="time">{{TIME}}</div>
-          <div class="event">{{EVENT}}</div>
+        <div class="tl-item ok">
+          <div class="tl-time">{{TIME}}</div>
+          <div class="tl-desc">{{EVENT}} <span class="badge badge-ok">Normal</span></div>
         </div>
-        <div class="timeline-item crash-event">
-          <div class="time">{{CRASH_TIME}}</div>
-          <div class="event"><strong>CRASH</strong> — {{CRASH_DESCRIPTION}}</div>
+        <div class="tl-item warn">
+          <div class="tl-time">{{TIME}}</div>
+          <div class="tl-desc">{{EVENT}} <span class="badge badge-warn">Non-fatal</span></div>
         </div>
       </div>
+
+      <h3 class="phase-title">Phase 2: {{PHASE_2_TITLE}}</h3>
+      <div class="timeline">
+        <div class="tl-item action">
+          <div class="tl-time">{{TIME}}</div>
+          <div class="tl-desc">{{EVENT}}</div>
+        </div>
+        <div class="tl-item info">
+          <div class="tl-time">{{TIME}}</div>
+          <div class="tl-desc">{{EVENT}}</div>
+        </div>
+        <div class="tl-item bug">
+          <div class="tl-time">{{TIME}}</div>
+          <div class="tl-desc"><strong>{{ROOT_CAUSE_EVENT}}</strong> <span class="badge badge-error">CRASH</span></div>
+        </div>
+        <div class="tl-item error">
+          <div class="tl-time">{{TIME}}</div>
+          <div class="tl-desc">{{EVENT}}</div>
+        </div>
+      </div>
+
+      <!-- More phases: copy the h3 + .timeline block and adjust -->
+
     </section>
 
-    <!-- Section: Core Data -->
-    <section class="section" id="core-data">
-      <h2 class="section-title"><span class="icon">&#128165;</span> 核心数据</h2>
+    <!-- ============================== -->
+    <!-- Section 3: 根因分析            -->
+    <!-- ============================== -->
+    <section class="section" id="root-cause">
+      <h2 class="section-title"><span class="icon">&#128269;</span> 根因分析</h2>
 
-      <h3 class="subsection-title">崩溃堆栈</h3>
-      <div class="stack-trace">
-        <!-- {{STACK_FRAMES}} - Example: -->
-        <div class="stack-frame crash-frame">
-          <span class="frame-num">#0</span>
-          <span class="func-name">{{FUNCTION}}</span> at <span class="file-path">{{FILE}}:{{LINE}}</span>
-        </div>
-        <div class="stack-frame app-frame">
-          <span class="frame-num">#1</span>
-          <span class="func-name">{{FUNCTION}}</span> at <span class="file-path">{{FILE}}:{{LINE}}</span>
-        </div>
-        <div class="stack-frame sys-frame">
-          <span class="frame-num">#2</span>
-          <span class="func-name">{{FUNCTION}}</span> at <span class="file-path">{{FILE}}:{{LINE}}</span>
-        </div>
+      <!-- 直接原因 -->
+      <h3 class="subsection-title">直接原因</h3>
+      <div class="card highlight">
+        <p>
+          {{DIRECT_CAUSE}}
+        </p>
       </div>
 
-      <h3 class="subsection-title">关键帧分析</h3>
+      <!-- 触发条件 / 关键差异（可选 — 适用于正常 vs 异常对比场景） -->
+      <h3 class="subsection-title">触发条件：{{TRIGGER_QUESTION}}</h3>
+      <p>{{TRIGGER_EXPLANATION}}</p>
+      <!--
+        Compare normal vs crash scenarios to highlight the key differentiating variable.
+        Add or remove table rows as needed.
+        If not applicable, remove this subsection entirely.
+      -->
       <div class="table-wrapper">
-        <table>
+        <table class="compare-table">
           <thead>
-            <tr><th>帧</th><th>函数</th><th>文件</th><th>行号</th><th>说明</th></tr>
+            <tr><th>特征</th><th>正常情况</th><th>异常情况</th></tr>
           </thead>
           <tbody>
-            <!-- {{KEY_FRAMES}} -->
+            {{COMPARE_ROWS}}
           </tbody>
         </table>
       </div>
 
-      <h3 class="subsection-title">线程信息</h3>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr><th>线程</th><th>状态</th><th>角色</th></tr>
-          </thead>
-          <tbody>
-            <!-- {{THREAD_INFO}} -->
-          </tbody>
-        </table>
+      <!-- 3.3 完整调用链 -->
+      <h3 class="subsection-title">完整调用链</h3>
+      <div class="callchain">
+        <!--
+          Call chain step types:
+            step-trigger  → blue    (entry point / trigger)
+            step-normal   → green   (normal processing)
+            step-process  → yellow  (intermediate steps)
+            step-branch   → purple  (branch/decision point)
+            step-abnormal → red     (error path / anomaly)
+            step-result   → dark red bold (final crash)
+
+          Arrow annotations explain the transition between steps.
+
+          Example:
+          <div class="step step-trigger">1. JS: ViewModel → Service.onReady() → Helper.init()</div>
+          <div class="arrow">↓ Native call</div>
+          <div class="step step-normal">2. LoadLibFile() → dlopen("lib.so")</div>
+          <div class="arrow">↓ loading shared library</div>
+          <div class="step step-abnormal">3. AllocPages() → returns 0 (FAILED)</div>
+          <div class="arrow">↓ no fallback</div>
+          <div class="step step-result">4. PA_CHECK(false) → SIGTRAP</div>
+        -->
+        {{CALL_CHAIN}}
       </div>
+
+      <!-- 关键证据 -->
+      <h3 class="subsection-title">关键证据</h3>
+
+      <!--
+        Evidence items: left-border numbered cards.
+        Color variants: .evidence-crash (red) / .evidence-warn (yellow) / .evidence-info (blue) / default (accent purple)
+        Use .evidence-number for the numbered badge (01, 02, 03...).
+        Log syntax highlighting: .log-time, .log-tag, .log-key, .log-val, .log-warn
+        Stack frame classes: .stack-frame .crash-frame / .app-frame / .sys-frame
+        Use <details><summary> for long log blocks.
+        Add or remove evidence items as needed.
+      -->
+
+      <div class="evidence-item evidence-crash">
+        <div class="evidence-item-title">
+          <span class="evidence-number">01</span>
+          {{EVIDENCE_1_TITLE}}
+        </div>
+        <pre><code>{{EVIDENCE_1_CONTENT}}</code></pre>
+      </div>
+
+      <div class="evidence-item">
+        <div class="evidence-item-title">
+          <span class="evidence-number">02</span>
+          {{EVIDENCE_2_TITLE}}
+        </div>
+        <pre><code>{{EVIDENCE_2_CONTENT}}</code></pre>
+      </div>
+
+      <!-- 长日志可使用折叠面板 -->
+      <!--
+      <div class="evidence-item evidence-info">
+        <div class="evidence-item-title">
+          <span class="evidence-number">03</span>
+          完整上下文日志
+        </div>
+        <details>
+          <summary>展开查看完整日志（N 行）</summary>
+          <pre><code>{{FULL_CONTEXT_LOGS}}</code></pre>
+        </details>
+      </div>
+      -->
+
     </section>
 
-    <!-- Section: Deep Analysis -->
-    <section class="section" id="deep-analysis">
-      <h2 class="section-title"><span class="icon">&#128269;</span> 深度分析</h2>
+    <!-- ============================== -->
+    <!-- Section 4: 修复建议            -->
+    <!-- ============================== -->
+    <section class="section" id="fix-recommendations">
+      <h2 class="section-title"><span class="icon">&#128295;</span> 修复建议</h2>
 
-      <div class="root-cause-box">
-        <h3>
-          <span>&#127919;</span> 根因分析
-          <span class="confidence-badge confidence-{{CONFIDENCE}}">
-            <span class="confidence-dot"></span> 可信度: {{CONFIDENCE_LABEL}}
-          </span>
-        </h3>
-        <p>{{ROOT_CAUSE_DESCRIPTION}}</p>
-      </div>
-
-      <div class="analysis-card direct">
-        <div class="analysis-card-title">直接原因</div>
-        <p>{{DIRECT_CAUSE}}</p>
-      </div>
-
-      <div class="analysis-card underlying">
-        <div class="analysis-card-title">深层原因</div>
-        <p>{{UNDERLYING_CAUSE}}</p>
-      </div>
-
-      <div class="analysis-card contributing">
-        <div class="analysis-card-title">促成因素</div>
-        <ul>
-          <!-- {{CONTRIBUTING_FACTORS}} -->
-          <li>{{FACTOR_1}}</li>
-          <li>{{FACTOR_2}}</li>
+      <!-- 诊断结论 -->
+      <h3 class="subsection-title">诊断结论</h3>
+      <div class="card highlight">
+        <p>{{ROOT_CAUSE_SUMMARY}}</p>
+        <ul style="margin:8px 0 0 20px;">
+          {{ROOT_CAUSE_BULLET_POINTS}}
         </ul>
       </div>
 
-      <h3 class="subsection-title">关联文件</h3>
+      <!-- 修复方案 -->
+      <h3 class="subsection-title">修复方案</h3>
+
+      <!--
+        Fix options use left-border numbered style (like evidence items).
+        Color: .evidence-info (blue) for recommended, default (accent) for alternatives.
+        Add or remove items as needed.
+      -->
+      <div class="evidence-item evidence-info">
+        <div class="evidence-item-title">
+          <span class="evidence-number">推荐</span>
+          {{FIX_1_TITLE}}
+        </div>
+        <p style="margin:0;">{{FIX_1_DESCRIPTION}}</p>
+      </div>
+
+      <div class="evidence-item">
+        <div class="evidence-item-title">
+          <span class="evidence-number">备选</span>
+          {{FIX_2_TITLE}}
+        </div>
+        <p style="margin:0;">{{FIX_2_DESCRIPTION}}</p>
+      </div>
+
+      <!-- Code diff example (optional, include when a concrete fix is available) -->
+      <!--
+      <div class="code-diff">
+        <div class="diff-line diff-ctx">// file.cpp:95</div>
+        <div class="diff-line diff-del">- old code line</div>
+        <div class="diff-line diff-add">+ new code line</div>
+      </div>
+      -->
+
+      <!-- 预防措施（可选） -->
+      <!--
+      <h3 class="subsection-title">预防措施</h3>
       <div class="table-wrapper">
         <table>
           <thead>
-            <tr><th>文件</th><th>角色</th><th>关键行</th><th>关联度</th></tr>
+            <tr><th>措施</th><th>工作量</th><th>影响</th><th>说明</th></tr>
           </thead>
           <tbody>
-            <!-- {{RELATED_FILES}} -->
+            {{PREVENTIVE_MEASURES}}
           </tbody>
         </table>
       </div>
-    </section>
+      -->
 
-    <!-- Section: Call Flow -->
-    <section class="section" id="call-flow">
-      <h2 class="section-title"><span class="icon">&#128260;</span> 调用流程</h2>
-      <div class="call-flow">
-        <!-- {{FLOW_STEPS}} - Example: -->
-        <div class="flow-step">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <div class="step-label">{{STEP_LABEL}}</div>
-            <div class="step-detail">{{FUNCTION}} at {{FILE}}:{{LINE}}</div>
-          </div>
-        </div>
-        <div class="flow-step crash-step">
-          <div class="step-num">&#10007;</div>
-          <div class="step-content">
-            <div class="step-label">CRASH: {{CRASH_LABEL}}</div>
-            <div class="step-detail">{{FUNCTION}} at {{FILE}}:{{LINE}}</div>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="subsection-title">变量状态分析</h3>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr><th>变量</th><th>期望状态</th><th>实际状态</th><th>证据</th></tr>
-          </thead>
-          <tbody>
-            <!-- {{VARIABLE_STATE}} -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Section: Solution -->
-    <section class="section" id="solution">
-      <h2 class="section-title"><span class="icon">&#128295;</span> 解决方案</h2>
-
-      <div class="solution-card immediate">
-        <h4>&#128680; 紧急修复 <span class="confidence-badge confidence-{{FIX_CONFIDENCE}}"><span class="confidence-dot"></span> {{FIX_CONFIDENCE_LABEL}}</span></h4>
-        <p>{{IMMEDIATE_FIX_DESCRIPTION}}</p>
-        <div class="code-diff">
-          <!-- {{IMMEDIATE_FIX_DIFF}} -->
-          <div class="diff-line diff-del">- {{OLD_CODE}}</div>
-          <div class="diff-line diff-add">+ {{NEW_CODE}}</div>
-        </div>
-        <p><strong>修改文件:</strong></p>
-        <ul>
-          <!-- {{IMMEDIATE_FIX_FILES}} -->
-        </ul>
-      </div>
-
-      <div class="solution-card proper">
-        <h4>&#128736; 完善修复 <span class="confidence-badge confidence-{{PROPER_CONFIDENCE}}"><span class="confidence-dot"></span> {{PROPER_CONFIDENCE_LABEL}}</span></h4>
-        <p>{{PROPER_FIX_DESCRIPTION}}</p>
-        <!-- {{PROPER_FIX_STEPS}} -->
-      </div>
-
-      <div class="solution-card preventive">
-        <h4>&#128737; 预防措施</h4>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr><th>措施</th><th>工作量</th><th>影响</th><th>说明</th></tr>
-            </thead>
-            <tbody>
-              <!-- {{PREVENTIVE_MEASURES}} -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <h3 class="subsection-title">可信度评估</h3>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr><th>结论</th><th>可信度</th><th>依据</th></tr>
-          </thead>
-          <tbody>
-            <!-- {{CONFIDENCE_TABLE}} -->
-          </tbody>
-        </table>
-      </div>
-
+      <!-- 待进一步调查（可选 — 证据不足时使用） -->
+      <!--
       <h3 class="subsection-title">待进一步调查</h3>
-      <div class="card">
-        <ul>
-          <!-- {{FURTHER_INVESTIGATION}} -->
-        </ul>
-      </div>
+      <ul>
+        <li>{{INVESTIGATION_ITEM}}</li>
+      </ul>
+      -->
+
     </section>
+
   </main>
 
   <script>
-    // ── Theme toggle ──────────────────────────────────────────
+    /* ===================== Theme Toggle ===================== */
     const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const themeLabel = document.getElementById('themeLabel');
 
     function applyTheme(theme) {
       html.setAttribute('data-theme', theme);
       if (theme === 'dark') {
-        themeIcon.textContent = '☀';
+        themeIcon.textContent = '\u2600'; // ☀
         themeLabel.textContent = '切换亮色模式';
       } else {
-        themeIcon.textContent = '☾';
+        themeIcon.textContent = '\u263D'; // ☽
         themeLabel.textContent = '切换暗色模式';
       }
       try { localStorage.setItem('issue-analyzer-theme', theme); } catch(e) {}
     }
 
-    function toggleTheme() {
+    // Restore saved preference, otherwise use system preference
+    (function() {
+      let saved;
+      try { saved = localStorage.getItem('issue-analyzer-theme'); } catch(e) {}
+      if (saved === 'dark' || saved === 'light') {
+        applyTheme(saved);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        applyTheme('dark');
+      } else {
+        applyTheme('dark'); // default dark for crash analysis
+      }
+    })();
+
+    themeToggle.addEventListener('click', () => {
       applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    }
+    });
 
-    // Restore saved preference
-    try {
-      const saved = localStorage.getItem('issue-analyzer-theme');
-      if (saved) applyTheme(saved);
-    } catch(e) {}
-
-    // ── Mobile sidebar ────────────────────────────────────────
+    /* ===================== Mobile Sidebar ===================== */
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
     const menuBtn = document.getElementById('menuBtn');
@@ -1038,24 +1148,29 @@
     function openSidebar() {
       sidebar.classList.add('open');
       overlay.classList.add('visible');
+      menuBtn.innerHTML = '&#10005;'; // ✕
     }
 
     function closeSidebar() {
       sidebar.classList.remove('open');
       overlay.classList.remove('visible');
+      menuBtn.innerHTML = '&#9776;'; // ☰
     }
 
-    menuBtn.addEventListener('click', openSidebar);
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+
     overlay.addEventListener('click', closeSidebar);
 
-    // Close sidebar when a nav link is clicked (mobile)
+    // Close sidebar on nav link click (mobile)
     document.querySelectorAll('.nav-link').forEach(link => {
       link.addEventListener('click', () => {
         if (window.innerWidth <= 768) closeSidebar();
       });
     });
 
-    // ── Active nav on scroll ──────────────────────────────────
+    /* ===================== Active Nav Highlight on Scroll ===================== */
     const sections = document.querySelectorAll('.section');
     const navLinks = document.querySelectorAll('.nav-link');
 
@@ -1063,11 +1178,12 @@
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           navLinks.forEach(l => l.classList.remove('active'));
-          const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+          const id = entry.target.getAttribute('id');
+          const active = document.querySelector(`.nav-link[href="#${id}"]`);
           if (active) active.classList.add('active');
         }
       });
-    }, { rootMargin: '-20% 0px -70% 0px' });
+    }, { rootMargin: '-15% 0px -70% 0px' });
 
     sections.forEach(s => observer.observe(s));
   </script>

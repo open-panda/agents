@@ -1,170 +1,107 @@
 # Report Template
 
-Use this as the structure guide for the Markdown report output.
+Use this as the structure guide for the Markdown report output. The report follows a **problem-solving narrative**: each section answers one key question to guide the reader from "what happened" to "how to fix it".
 
-## Basic Information
+---
+
+## [Report Title]
+
+**ROOT CAUSE** | **[CRASH_SIGNAL] ([Signal detail])**
+
+[One-paragraph root cause summary — the most important finding, stated upfront so the reader immediately knows the conclusion. Use inline code for function/variable names.]
+
+## 基本信息
 
 | Field | Value |
 |-------|-------|
-| **Process** | [process name and PID] |
-| **Crash Time** | [timestamp] |
-| **OS / Platform** | [OS version, architecture] |
-| **Build Version** | [app version / build number] |
-| **Device / Host** | [device model or host info if available] |
-| **Crash Signal** | [SIGSEGV / SIGABRT / Exception type] |
-| **Fault Address** | [address if available] |
+| **进程** | [process name] |
+| **PID** | [PID] |
+| **崩溃时间** | [timestamp] |
+| **系统平台** | [OS version, architecture] |
+| **设备** | [device model if available] |
+| **构建版本** | [app version / build number] |
+| **崩溃信号** | [SIGSEGV / SIGABRT / Exception type] |
+| **故障地址** | [address if available] |
 
-### Timeline
+## 事件时间线
 
-[If log context is available, present a timeline of events leading to the crash:]
+[Group events into logical phases. Each phase has a title and a list of timestamped events with status markers.]
 
-| Time | Event | Source |
+### 阶段 1: [Phase Title]
+
+| Time | Event | Status |
 |------|-------|--------|
-| [T-N] | [event description] | [log file:line] |
-| [T-0] | **CRASH** | [crash dump] |
+| HH:MM:SS.mmm | Event description | ✅ 正常 / ⚠️ 警告 / ❌ 错误 / 🐛 根因 |
 
-## Core Data
+### 阶段 2: [Phase Title]
 
-### Crash Stack
+| Time | Event | Status |
+|------|-------|--------|
+| HH:MM:SS.mmm | Event description | Status |
 
+## 根因分析
+
+### 直接原因
+
+> [What immediately triggered the crash. Be specific with file paths, line numbers, function names.]
+
+### 触发条件：[Question — why did it crash this time?]
+
+[One sentence explaining the key differentiating variable.]
+
+| 特征 | 正常情况 | 异常情况 |
+|------|---------|---------|
+| [factor] | [normal value] | [crash value] |
+
+### 完整调用链
+
+1. **[触发]** [Entry point description]
+2. **[过程]** [Processing step]
+3. **[异常]** [Error path] ← **问题在这里**
+4. **[结果]** [Final crash]
+
+### 关键证据
+
+**证据 1: [title]**
 ```
-[Full formatted crash stack trace with frame numbers]
-#0  0x... in function_name at file.cpp:123
-#1  0x... in caller_function at file.cpp:456
-#2  ...
-```
-
-### Key Frames Analysis
-
-| Frame | Function | File | Line | Significance |
-|-------|----------|------|------|-------------|
-| #0 | [crash point function] | [file] | [line] | **Crash Site** - [what happened here] |
-| #1 | [caller] | [file] | [line] | [why this call matters] |
-| #N | [relevant frame] | [file] | [line] | [significance] |
-
-### Thread Information
-
-| Thread | State | Role |
-|--------|-------|------|
-| Thread 0 (crashed) | [state] | [what this thread was doing] |
-| Thread 1 | [state] | [role, if relevant to crash] |
-
-### Register State
-
-[If available, present key register values:]
-
-| Register | Value | Interpretation |
-|----------|-------|---------------|
-| [reg] | [value] | [what it points to or means] |
-
-## Deep Analysis
-
-### Root Cause
-
-**Confidence: {{HIGH/MEDIUM/LOW}}**
-
-[One-paragraph clear statement of the root cause.]
-
-#### Direct Cause
-
-[What immediately triggered the crash. Be specific: "Null pointer dereference when accessing `obj->field` at `file.cpp:123` because `obj` was not initialized after the error path at line 100."]
-
-#### Underlying Cause
-
-[Why the direct cause happened. Dig deeper: "The object initialization was skipped when `init_function()` returned an error code, but the caller did not check the return value and proceeded to use the uninitialized pointer."]
-
-#### Contributing Factors
-
-- [Factor 1: e.g., "Missing null check after fallible operation"]
-- [Factor 2: e.g., "No RAII wrapper for the resource lifecycle"]
-- [Factor 3: e.g., "Error handling path not tested"]
-
-### Related Files
-
-| File | Role | Key Lines | Relevance |
-|------|------|-----------|-----------|
-| [file path] | [role in crash] | [line range] | [how it relates to the crash] |
-
-### Call Flow
-
-[Reconstruct the complete execution path leading to the crash. Use a numbered sequence:]
-
-1. **Entry**: `main()` at `main.cpp:50` - Application starts event loop
-2. **Trigger**: `handleEvent()` at `handler.cpp:120` - Receives user input event
-3. **Processing**: `processData()` at `processor.cpp:89` - Begins data processing
-4. **Error path**: `loadResource()` at `resource.cpp:45` - Returns error (resource not found)
-5. **Missing check**: `processData()` at `processor.cpp:95` - Does NOT check return value
-6. **CRASH**: `useResource()` at `processor.cpp:102` - Dereferences null pointer
-
-```
-main() → handleEvent() → processData() → loadResource() [FAILS]
-                                       → useResource() [CRASH: null deref]
+[Key crash data / log lines]
 ```
 
-### Variable State Analysis
-
-[Based on crash data and source code, infer the state of key variables at crash time:]
-
-| Variable | Expected State | Likely Actual State | Evidence |
-|----------|---------------|-------------------|----------|
-| [var name] | [what it should be] | [what it likely was] | [why we think so] |
-
-## Solution
-
-### Recommended Fix
-
-**Confidence: {{HIGH/MEDIUM/LOW}}**
-
-#### Immediate Fix (Stop the Bleeding)
-
-[Minimum change to prevent this specific crash:]
-
-```diff
-// file.cpp:95
-- resource_t* res = loadResource(path);
-- useResource(res);
-+ resource_t* res = loadResource(path);
-+ if (res == nullptr) {
-+     LOG_ERROR("Failed to load resource: %s", path);
-+     return ERROR_RESOURCE_NOT_FOUND;
-+ }
-+ useResource(res);
+**证据 2: [title]**
+```
+[Key crash data / log lines]
 ```
 
-**Files to modify:**
-- `[file path]`: [what to change]
+## 修复建议
 
-#### Proper Fix (Address Root Cause)
+### 诊断结论
 
-[More thorough fix addressing the underlying issue:]
+> [Summary paragraph of the root cause]
 
-- [Step 1: description and code change]
-- [Step 2: description and code change]
-- [Step 3: description and code change]
+- [Bullet point 1]
+- [Bullet point 2]
+- [Bullet point 3]
 
-**Files to modify:**
-- `[file path]`: [what to change]
-- `[file path]`: [what to change]
+### 修复方案
 
-#### Preventive Measures
+**[推荐] 方案 1: [title]**
+[Description of the fix]
 
-| Measure | Effort | Impact | Description |
-|---------|--------|--------|-------------|
-| [measure 1] | Low/Medium/High | [impact] | [description] |
-| [measure 2] | Low/Medium/High | [impact] | [description] |
+**[推荐] 方案 2: [title]**
+[Description of the fix]
 
-### Confidence Assessment
+**[备选] 方案 3: [title]**
+[Description of the fix]
 
-| Conclusion | Confidence | Basis |
-|-----------|-----------|-------|
-| Root cause identification | High/Medium/Low | [what evidence supports this] |
-| Immediate fix effectiveness | High/Medium/Low | [why we believe this will work] |
-| Proper fix completeness | High/Medium/Low | [what might be missed] |
+### 预防措施
 
-### Additional Investigation Needed
+| 措施 | 工作量 | 影响 | 说明 |
+|------|--------|------|------|
+| [measure] | Low/Medium/High | [impact] | [description] |
 
-[If the available evidence is insufficient for high-confidence conclusions:]
+### 待进一步调查
 
-- [What additional data would help: e.g., "full core dump", "logs from 5 minutes before crash"]
-- [What tests to run: e.g., "reproduce with AddressSanitizer enabled"]
-- [What to check: e.g., "verify thread safety of SharedCache class"]
+[If evidence is insufficient:]
+
+- [What additional data would help]
+- [What tests to run]
