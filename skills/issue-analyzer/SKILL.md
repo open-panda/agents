@@ -1,6 +1,6 @@
 ---
 name: issue-analyzer
-description: Analyze program issues including crashes, bugs, and errors by examining crash stacks, core dumps, and log files alongside source code. Generates a detailed analysis report with root cause, call flow, and fix recommendations. Use when the user provides a "crash stack", "crash log", "core dump", "error log", "bug report", "stack trace", "exception", "ANR trace", or asks to "analyze this crash", "debug this issue", "find the root cause", "why did this crash", or "what caused this error".
+description: Analyze crashes, bugs, and errors from crash stacks, and logs with source code. Produces root cause analysis with call flow and fix recommendations. Use for "crash stack", "crash log", "error log", "stack trace", "exception", "ANR trace", "analyze this crash", "debug this issue", or "find the root cause".
 user-invocable: true
 argument-hint: "[crash log / stack trace file path]"
 ---
