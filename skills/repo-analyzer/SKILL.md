@@ -1,6 +1,6 @@
 ---
 name: repo-analyzer
-description: Analyze a repository and generate a deep, evidence-backed analysis report covering architecture, tech stack, core functionality, and risks. Use when the user wants a "project analysis", "source code analysis", "codebase review", "architecture analysis", "tech stack analysis", "project overview report", "code audit", or asks to understand an entire project. Also trigger when the user provides a directory path and asks for analysis, review, or understanding of the project.
+description: Analyze a repository and generate a deep, evidence-backed analysis report covering architecture, tech stack, core functionality, and risks. Use when the user wants a "project analysis", "source code analysis", "codebase review", "architecture analysis", "tech stack analysis", "project overview report", "code audit", or asks to understand an entire project.
 user-invocable: true
 argument-hint: "[source directory path]"
 ---
