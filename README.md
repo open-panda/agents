@@ -121,5 +121,4 @@
 | `release-skills` | 通用版本发布工作流，自动检测版本文件和变更日志，支持多种项目类型和多语言 Changelog |
 | `next-best-practices` | Next.js 最佳实践：文件约定、RSC 边界、数据模式、异步 API、元数据、错误处理等 |
 | `vercel-react-best-practices` | Vercel 工程团队的 React/Next.js 性能优化指南，68 条规则，按影响优先级排列 |
-| `analyze-new-repo` | 分析陌生仓库：架构解读、代码定位、运行方式、技术选型，快速上手新项目 |
 | `find-skills` | 搜索和安装开放技能生态中的技能包，帮助发现可扩展的 Agent 能力 |
