@@ -326,6 +326,15 @@
       "pluginName": "example-skills",
       "installedAt": "2026-04-05T13:54:55.724Z",
       "updatedAt": "2026-04-05T13:54:55.724Z"
+    },
+    "autocli": {
+      "source": "nashsu/AutoCLI-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/nashsu/AutoCLI-skill.git",
+      "skillPath": "SKILL.md",
+      "skillFolderHash": "e9108953f5f75111a4f36228ce59c1de3706243d",
+      "installedAt": "2026-04-09T16:08:58.137Z",
+      "updatedAt": "2026-04-09T16:08:58.137Z"
     }
   },
   "dismissed": {
