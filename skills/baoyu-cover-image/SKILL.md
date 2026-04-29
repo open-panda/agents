@@ -1,7 +1,7 @@
 ---
 name: baoyu-cover-image
-description: Generates article cover images with 5 dimensions (type, palette, rendering, text, mood) combining 10 color palettes and 7 rendering styles. Supports cinematic (2.35:1), widescreen (16:9), and square (1:1) aspects. Use when user asks to "generate cover image", "create article cover", or "make cover".
-version: 1.56.1
+description: Generates article cover images with 5 dimensions (type, palette, rendering, text, mood) combining 11 color palettes and 7 rendering styles. Supports cinematic (2.35:1), widescreen (16:9), and square (1:1) aspects. Use when user asks to "generate cover image", "create article cover", or "make cover".
+version: 1.56.2
 metadata:
   openclaw:
     homepage: https://github.com/JimLiu/baoyu-skills#baoyu-cover-image
@@ -11,35 +11,49 @@ metadata:
 
 Generate elegant cover images for articles with 5-dimensional customization.
 
-## Usage
+## User Input Tools
 
-```bash
-# Auto-select dimensions based on content
-/baoyu-cover-image path/to/article.md
+When this skill prompts the user, follow this tool-selection rule (priority order):
 
-# Quick mode: skip confirmation
-/baoyu-cover-image article.md --quick
+1. **Prefer built-in user-input tools** exposed by the current agent runtime — e.g., `AskUserQuestion`, `request_user_input`, `clarify`, `ask_user`, or any equivalent.
+2. **Fallback**: if no such tool exists, emit a numbered plain-text message and ask the user to reply with the chosen number/answer for each question.
+3. **Batching**: if the tool supports multiple questions per call, combine all applicable questions into a single call; if only single-question, ask them one at a time in priority order.
 
-# Specify dimensions
-/baoyu-cover-image article.md --type conceptual --palette warm --rendering flat-vector
+Concrete `AskUserQuestion` references below are examples — substitute the local equivalent in other runtimes.
 
-# Style presets (shorthand for palette + rendering)
-/baoyu-cover-image article.md --style blueprint
+## Image Generation Tools
 
-# With reference images
-/baoyu-cover-image article.md --ref style-ref.png
+When this skill needs to render an image, resolve the backend in this order:
 
-# Direct content input
-/baoyu-cover-image --palette mono --aspect 1:1 --quick
-[paste content]
-```
+1. **Current-request override** — if the user names a specific backend in the current message, use it.
+2. **Saved preference** — if `EXTEND.md` sets `preferred_image_backend` to a backend available right now, use it.
+3. **Auto-select** (when the preference is `auto`, unset, or the pinned backend isn't available):
+   - If the current runtime exposes a native image tool (e.g., Codex `imagegen`, Hermes `image_generate`), use it. Runtime-native tools are preferred by default — agents that know their own tool inventory should surface the native one here.
+   - Otherwise, if exactly one non-native backend is installed (e.g., `baoyu-imagine`), use it.
+   - Otherwise (multiple non-native backends with no runtime-native tool), ask the user once — batch with any other initial questions.
+4. **If none are available**, tell the user and ask how to proceed.
+
+Setting `preferred_image_backend: ask` forces the step-3 prompt every run regardless of available backends. Users change the pinned backend via the `## Changing Preferences` section below.
+
+**Prompt file requirement (hard)**: write each image's full, final prompt to a standalone file under `prompts/` (naming: `NN-{type}-[slug].md`) BEFORE invoking any backend. The backend receives the prompt file (or its content); the file is the reproducibility record and lets you switch backends without regenerating prompts.
+
+Concrete tool names (`imagegen`, `image_generate`, `baoyu-imagine`) above are examples — substitute the local equivalents under the same rule.
+
+## Confirmation Policy
+
+Default behavior: **confirm before generation**.
+
+- Treat explicit skill invocation, a file path, matched keywords/presets, `EXTEND.md` defaults, and any documented auto-selection as **recommendation inputs only**. None of them authorizes skipping confirmation.
+- Do **not** start Step 3 or Step 4 until the user confirms the dimensions / aspect / language / backend choices.
+- Skip confirmation only when the current request explicitly says to do so, for example: `--quick`, "直接生成", "不用确认", "跳过确认", "按默认出图", or equivalent wording. `quick_mode: true` in `EXTEND.md` counts as a standing explicit opt-out — set it only when you want every run to skip Step 2.
+- If confirmation is skipped explicitly, state the assumed dimensions / aspect / language / backend in the next user-facing update before generating.
 
 ## Options
 
 | Option | Description |
 |--------|-------------|
 | `--type <name>` | hero, conceptual, typography, metaphor, scene, minimal |
-| `--palette <name>` | warm, elegant, cool, dark, earth, vivid, pastel, mono, retro, duotone |
+| `--palette <name>` | warm, elegant, cool, dark, earth, vivid, pastel, mono, retro, duotone, macaron |
 | `--rendering <name>` | flat-vector, hand-drawn, painterly, digital, pixel, chalk, screen-print |
 | `--style <name>` | Preset shorthand (see [Style Presets](references/style-presets.md)) |
 | `--text <level>` | none, title-only, title-subtitle, text-rich |
@@ -56,7 +70,7 @@ Generate elegant cover images for articles with 5-dimensional customization.
 | Dimension | Values | Default |
 |-----------|--------|---------|
 | **Type** | hero, conceptual, typography, metaphor, scene, minimal | auto |
-| **Palette** | warm, elegant, cool, dark, earth, vivid, pastel, mono, retro, duotone | auto |
+| **Palette** | warm, elegant, cool, dark, earth, vivid, pastel, mono, retro, duotone, macaron | auto |
 | **Rendering** | flat-vector, hand-drawn, painterly, digital, pixel, chalk, screen-print | auto |
 | **Text** | none, title-only, title-subtitle, text-rich | title-only |
 | **Mood** | subtle, balanced, bold | balanced |
@@ -69,7 +83,7 @@ Auto-selection rules: [references/auto-selection.md](references/auto-selection.m
 **Types**: hero, conceptual, typography, metaphor, scene, minimal
 → Details: [references/types.md](references/types.md)
 
-**Palettes**: warm, elegant, cool, dark, earth, vivid, pastel, mono, retro, duotone
+**Palettes**: warm, elegant, cool, dark, earth, vivid, pastel, mono, retro, duotone, macaron
 → Details: [references/palettes/](references/palettes/)
 
 **Renderings**: flat-vector, hand-drawn, painterly, digital, pixel, chalk, screen-print
@@ -130,21 +144,13 @@ Analyze + Save Refs → [Output Dir] → [Confirm: 6 Dimensions] → Prompt → 
 
 ### Step 0: Load Preferences ⛔ BLOCKING
 
-Check EXTEND.md existence (priority: project → user):
-```bash
-# macOS, Linux, WSL, Git Bash
-test -f .baoyu-skills/baoyu-cover-image/EXTEND.md && echo "project"
-test -f "${XDG_CONFIG_HOME:-$HOME/.config}/baoyu-skills/baoyu-cover-image/EXTEND.md" && echo "xdg"
-test -f "$HOME/.baoyu-skills/baoyu-cover-image/EXTEND.md" && echo "user"
-```
+Check EXTEND.md in priority order — the first one found wins:
 
-```powershell
-# PowerShell (Windows)
-if (Test-Path .baoyu-skills/baoyu-cover-image/EXTEND.md) { "project" }
-$xdg = if ($env:XDG_CONFIG_HOME) { $env:XDG_CONFIG_HOME } else { "$HOME/.config" }
-if (Test-Path "$xdg/baoyu-skills/baoyu-cover-image/EXTEND.md") { "xdg" }
-if (Test-Path "$HOME/.baoyu-skills/baoyu-cover-image/EXTEND.md") { "user" }
-```
+| Priority | Path | Scope |
+|----------|------|-------|
+| 1 | `.baoyu-skills/baoyu-cover-image/EXTEND.md` | Project |
+| 2 | `${XDG_CONFIG_HOME:-$HOME/.config}/baoyu-skills/baoyu-cover-image/EXTEND.md` | XDG |
+| 3 | `$HOME/.baoyu-skills/baoyu-cover-image/EXTEND.md` | User home |
 
 | Result | Action |
 |--------|--------|
@@ -173,6 +179,8 @@ See [reference-images.md](references/workflow/reference-images.md) for full deci
 
 ### Step 2: Confirm Options ⚠️
 
+**Hard gate**: this step is mandatory per the [Confirmation Policy](#confirmation-policy) — Steps 3–4 cannot start until the user confirms here (or explicitly opts out with `--quick` / `quick_mode: true` / equivalent wording in the current request).
+
 **MUST use `AskUserQuestion` tool** to present options as interactive selection — NOT plain text tables. Present up to 4 questions in a single `AskUserQuestion` call (Type, Palette, Rendering, Font + Settings). Each question shows the recommended option first with reason, followed by alternatives.
 
 Full confirmation flow and question format: [references/workflow/confirm-options.md](references/workflow/confirm-options.md)
@@ -196,12 +204,13 @@ Save to `prompts/cover.md`. Template: [references/workflow/prompt-template.md](r
 ### Step 4: Generate Image
 
 1. **Backup existing** `cover.png` if regenerating
-2. **Check image generation skills**; if multiple, ask preference
-3. **Process references** from prompt frontmatter:
+2. **Select backend** via the `## Image Generation Tools` rule at the top: use whatever is available; if multiple, ask the user once. Do this once per session before any generation.
+3. **Write the full final prompt** to `prompts/01-cover-[slug].md` (hard requirement) BEFORE invoking the backend.
+4. **Process references** from prompt frontmatter:
    - `direct` usage → pass via `--ref` (use ref-capable backend)
    - `style`/`palette` → extract traits, append to prompt
-4. **Generate**: Call skill with prompt file, output path, aspect ratio
-5. On failure: auto-retry once
+5. **Generate**: Call the chosen backend with the prompt file, output path, aspect ratio
+6. On failure: auto-retry once
 
 ### Step 5: Completion Report
 
@@ -236,13 +245,18 @@ Files:
 - **Characters**: Simplified silhouettes; NO realistic humans
 - **Title**: Use exact title from user/source; never invent
 
-## Extension Support
+## Changing Preferences
 
-Custom configurations via EXTEND.md. See **Step 0** for paths.
+EXTEND.md lives at the path noted in **Step 0**. Three ways to change it:
 
-Supports: Watermark | Preferred dimensions | Default aspect/output | Quick mode | Custom palettes | Language
-
-Schema: [references/config/preferences-schema.md](references/config/preferences-schema.md)
+- **Edit directly** — open EXTEND.md and change fields. Full schema: [references/config/preferences-schema.md](references/config/preferences-schema.md).
+- **Reconfigure interactively** — delete EXTEND.md (or ask "reconfigure baoyu-cover-image preferences" / "重新配置"). The next run re-triggers first-time setup.
+- **Common one-line edits**:
+  - `preferred_image_backend: auto` — default; runtime-native tool wins, falls back to the only installed backend, asks only if multiple non-native are present.
+  - `preferred_image_backend: codex-imagegen` — pin to Codex's built-in.
+  - `preferred_image_backend: baoyu-imagine` — pin to the baoyu-imagine skill.
+  - `preferred_image_backend: ask` — confirm backend every run.
+  - `watermark.enabled: true`, `preferred_type`, `preferred_palette`, `preferred_rendering`, `default_aspect`, `quick_mode: true`, `language` — shift the auto-selection defaults and confirmation flow.
 
 ## References
 

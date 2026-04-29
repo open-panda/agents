@@ -46,7 +46,7 @@ export function getDefaultModel(): string {
     }
   }
 
-  return process.env.AZURE_OPENAI_IMAGE_MODEL || "gpt-image-1.5";
+  return process.env.AZURE_OPENAI_IMAGE_MODEL || "gpt-image-2";
 }
 
 function getEndpoint(): AzureEndpoint {

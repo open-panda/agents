@@ -62,6 +62,7 @@ Visual composition:
 - Decorative: [palette-specific elements that reinforce content theme]
 
 Color scheme: [primary, background, accent from palette definition, adjusted by mood]
+Color constraint: Color values (#hex) and color names are rendering guidance only — do NOT display color names, hex codes, or palette labels as visible text in the image.
 Rendering notes: [key characteristics from rendering definition — lines, texture, depth, element style]
 Type notes: [key characteristics from type definition]
 Palette notes: [key characteristics from palette definition]

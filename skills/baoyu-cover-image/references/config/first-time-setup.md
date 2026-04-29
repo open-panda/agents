@@ -188,15 +188,15 @@ default_aspect: [16:9/2.35:1/1:1/3:4]
 default_output_dir: [independent/same-dir/imgs-subdir]
 quick_mode: [true/false]
 language: null
+preferred_image_backend: auto
 custom_palettes: []
 ---
 ```
 
+`preferred_image_backend: auto` is the baked-in default — first-time setup does not ask about it. The `## Image Generation Tools` rule in SKILL.md then picks the runtime-native tool (Codex `imagegen`, Hermes `image_generate`, etc.) when available, and falls back to installed backends.
+
 ## Modifying Preferences Later
 
-Users can edit EXTEND.md directly or run setup again:
-- Delete EXTEND.md to trigger setup
-- Edit YAML frontmatter for quick changes
-- Full schema: `preferences-schema.md`
+See the `## Changing Preferences` section in `SKILL.md` for the canonical list of common edits (pin backend, change defaults, retrigger setup). Full schema: `preferences-schema.md`.
 
-**EXTEND.md Supports**: Watermark | Preferred type | Preferred palette | Preferred rendering | Preferred text | Preferred mood | Default aspect ratio | Default output directory | Quick mode | Custom palette definitions | Language preference
+**EXTEND.md Supports**: Watermark | Preferred type | Preferred palette | Preferred rendering | Preferred text | Preferred mood | Default aspect ratio | Default output directory | Quick mode | Image backend preference | Custom palette definitions | Language preference

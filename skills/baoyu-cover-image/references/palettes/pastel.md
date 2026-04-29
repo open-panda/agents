@@ -21,6 +21,10 @@ Gentle, whimsical, soft
 - Soft shadows and gentle highlights
 - Storybook-style elements
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 Fantasy, children, gentle content, creative, whimsical, casual, beginner guides

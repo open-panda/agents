@@ -13,13 +13,13 @@ import {
   registerVideoDir,
   resolveBaseDir,
 } from "./storage.ts";
-import { findTranscript, formatListOutput, formatMarkdown, formatSrt, segmentIntoSentences } from "./transcript.ts";
+import { formatListOutput, formatMarkdown, formatSrt, segmentIntoSentences } from "./transcript.ts";
 import type { Options, Sentence, Snippet, VideoMeta, VideoResult } from "./types.ts";
 import {
   buildVideoMeta,
   buildVideoMetaFromYtDlp,
   downloadCoverImage,
-  fetchTranscriptSnippets,
+  fetchTranscriptWithFallback,
   fetchVideoSource,
   getThumbnailUrls,
   getYtDlpThumbnailUrls,
@@ -31,10 +31,12 @@ async function fetchAndCache(
   baseDir: string,
   opts: Options
 ): Promise<{ meta: VideoMeta; snippets: Snippet[]; sentences: Sentence[]; videoDir: string }> {
-  const source = await fetchVideoSource(videoId);
-  const requestedLanguages = source.kind === "yt-dlp" && opts.translate ? [opts.translate] : opts.languages;
-  const transcript = findTranscript(source.transcripts, requestedLanguages, opts.excludeGenerated, opts.excludeManual);
-  const result = await fetchTranscriptSnippets(transcript, source.kind === "yt-dlp" ? undefined : opts.translate || undefined);
+  const initialSource = await fetchVideoSource(videoId);
+  const { source, transcript, snippets, language, languageCode } = await fetchTranscriptWithFallback(
+    videoId,
+    initialSource,
+    opts
+  );
   const description = source.kind === "yt-dlp"
     ? source.info.description || ""
     : source.data?.videoDetails?.shortDescription || "";
@@ -42,21 +44,21 @@ async function fetchAndCache(
     ? Number(source.info.duration || 0)
     : parseInt(source.data?.videoDetails?.lengthSeconds || "0");
   const chapters = parseChapters(description, duration);
-  const language = {
-    code: result.languageCode,
-    name: result.language,
+  const languageMeta = {
+    code: languageCode,
+    name: language,
     isGenerated: transcript.isGenerated,
   };
   const meta = source.kind === "yt-dlp"
-    ? buildVideoMetaFromYtDlp(source.info, videoId, language, chapters)
-    : buildVideoMeta(source.data, videoId, language, chapters);
+    ? buildVideoMetaFromYtDlp(source.info, videoId, languageMeta, chapters)
+    : buildVideoMeta(source.data, videoId, languageMeta, chapters);
 
   const videoDir = registerVideoDir(videoId, slugify(meta.channel), slugify(meta.title), baseDir);
   ensureDir(join(videoDir, "meta.json"));
 
-  writeFileSync(join(videoDir, "transcript-raw.json"), JSON.stringify(result.snippets, null, 2));
+  writeFileSync(join(videoDir, "transcript-raw.json"), JSON.stringify(snippets, null, 2));
 
-  const sentences = segmentIntoSentences(result.snippets);
+  const sentences = segmentIntoSentences(snippets);
   writeFileSync(join(videoDir, "transcript-sentences.json"), JSON.stringify(sentences, null, 2));
 
   const imagePath = join(videoDir, "imgs", "cover.jpg");
@@ -69,7 +71,7 @@ async function fetchAndCache(
 
   writeFileSync(join(videoDir, "meta.json"), JSON.stringify(meta, null, 2));
 
-  return { meta, snippets: result.snippets, sentences, videoDir };
+  return { meta, snippets, sentences, videoDir };
 }
 
 async function processVideo(videoId: string, opts: Options): Promise<VideoResult> {

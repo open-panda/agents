@@ -21,6 +21,10 @@ Sophisticated, refined, understated luxury
 - Refined geometric patterns
 - Balanced, symmetrical compositions
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 Business, professional, thought leadership, luxury, corporate communications

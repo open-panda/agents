@@ -194,6 +194,54 @@ async function pasteFromClipboardInEditor(session: ChromeSession): Promise<void>
   await sleep(1000);
 }
 
+async function prepareEditorPasteTarget(
+  session: ChromeSession,
+  context: string,
+  options: { clickEditor?: boolean } = {},
+): Promise<void> {
+  await session.cdp.send('Target.activateTarget', { targetId: session.targetId }).catch(() => {});
+  await sleep(100);
+
+  if (options.clickEditor) {
+    await clickElement(session, '.ProseMirror');
+    await sleep(200);
+  }
+
+  const ready = await evaluate<boolean>(session, `
+    (function() {
+      const editor = document.querySelector('.ProseMirror');
+      if (!editor) return false;
+
+      const active = document.activeElement;
+      const selection = window.getSelection();
+      const selectionInEditor = !!selection && selection.rangeCount > 0 && !!selection.anchorNode && editor.contains(selection.anchorNode);
+      const focusInEditor = !!active && (active === editor || editor.contains(active));
+      if (selectionInEditor || focusInEditor) return true;
+
+      if (${JSON.stringify(Boolean(options.clickEditor))}) {
+        editor.focus();
+        const nextActive = document.activeElement;
+        return nextActive === editor || editor.contains(nextActive);
+      }
+
+      return false;
+    })()
+  `);
+
+  if (ready) return;
+
+  const activeElement = await evaluate<string>(session, `
+    (function() {
+      const el = document.activeElement;
+      if (!el) return '(none)';
+      const id = el.id ? '#' + el.id : '';
+      const className = typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/).join('.') : '';
+      return el.tagName.toLowerCase() + id + className;
+    })()
+  `);
+  throw new Error(`Body editor is not focused before ${context}; active element: ${activeElement}`);
+}
+
 async function parseMarkdownWithPlaceholders(
   markdownPath: string,
   theme?: string,
@@ -567,6 +615,7 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
       console.log(`[wechat] Copying HTML content from: ${effectiveHtmlFile}`);
       await copyHtmlFromBrowser(cdp, effectiveHtmlFile, contentImages);
       await sleep(500);
+      await prepareEditorPasteTarget(session, 'body content paste', { clickEditor: true });
       console.log('[wechat] Pasting into editor...');
       await pasteFromClipboardInEditor(session);
       await sleep(3000);
@@ -608,6 +657,7 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
           await sleep(200);
 
           console.log('[wechat] Pasting image...');
+          await prepareEditorPasteTarget(session, 'inline image paste');
           await pasteFromClipboardInEditor(session);
           await sleep(3000);
           await removeExtraEmptyLineAfterImage(session);
@@ -620,6 +670,7 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
           console.log(`[wechat] Pasting image: ${img}`);
           await copyImageToClipboard(img);
           await sleep(500);
+          await prepareEditorPasteTarget(session, 'leading image paste');
           await pasteInEditor(session);
           await sleep(2000);
           await removeExtraEmptyLineAfterImage(session);
@@ -627,6 +678,7 @@ export async function postArticle(options: ArticleOptions): Promise<void> {
       }
 
       console.log('[wechat] Typing content...');
+      await prepareEditorPasteTarget(session, 'content typing');
       await typeText(session, content);
       await sleep(1000);
 

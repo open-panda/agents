@@ -18,6 +18,8 @@ Comic Progress:
 - [ ] Step 5: Generate prompts
 - [ ] Step 6: Review prompts (conditional)
 - [ ] Step 7: Generate images
+  - [ ] 7.1 Character sheet (if needed)
+  - [ ] 7.2 Generate pages
 - [ ] Step 8: Merge to PDF
 - [ ] Step 9: Completion report
 ```
@@ -410,28 +412,41 @@ options:
 
 With confirmed prompts from Step 5/6:
 
-### 7.1 Generate Character Reference Sheet (first)
+### 7.1 Generate Character Reference Sheet (conditional)
 
+Character sheet is recommended for multi-page comics with recurring characters, but **NOT required** for all presets.
+
+**When to generate**:
+
+| Condition | Action |
+|-----------|--------|
+| Multi-page comic with detailed/recurring characters | Generate character sheet (recommended) |
+| Preset with simplified characters (e.g., four-panel minimalist) | Skip — prompt descriptions are sufficient |
+| Single-page comic | Skip unless characters are complex |
+
+**When generating**:
 1. Use Reference Sheet Prompt from `characters/characters.md`
 2. **Backup rule**: If `characters/characters.png` exists, rename to `characters/characters-backup-YYYYMMDD-HHMMSS.png`
 3. Generate → `characters/characters.png`
-4. This ensures visual consistency for all subsequent pages
+4. **Compress** to reduce API payload size when used as `--ref`:
+   - `sips -s format jpeg -s formatOptions 80 characters.png --out characters-compressed.jpg` (macOS)
+   - Or: `pngquant --quality=65-80 characters.png -o characters-compressed.png`
 
 ### 7.2 Generate Comic Pages
-
-**CRITICAL: Character Reference is MANDATORY** for visual consistency across all pages.
 
 **Before generating any page**:
 1. Read the image generation skill's SKILL.md
 2. Check if it supports reference image input (`--ref`, `--reference`, etc.)
-3. Choose the appropriate strategy below
+3. Determine if character sheet exists
+4. Choose the appropriate strategy below
 
-**Character Reference Strategy**:
+**Page Generation Strategy**:
 
-| Skill Capability | Strategy | Action |
-|------------------|----------|--------|
-| Supports `--ref` | **Strategy A** | Pass `characters/characters.png` with EVERY page |
-| Does NOT support `--ref` | **Strategy B** | Prepend character descriptions to EVERY prompt |
+| Character Sheet | Skill Capability | Strategy |
+|-----------------|------------------|----------|
+| Exists | Supports `--ref` | **A**: Pass character sheet as `--ref` with every page |
+| Exists | No `--ref` support | **B**: Embed character descriptions in every prompt |
+| Skipped | — | **C**: Prompt file contains all descriptions inline |
 
 **Strategy A: Using `--ref` parameter** (e.g., baoyu-imagine)
 
@@ -439,8 +454,16 @@ With confirmed prompts from Step 5/6:
 - Invoke that installed skill via its documented interface, not by calling its scripts directly
 - For every page, use `prompts/01-page-xxx.md` as the prompt-file input
 - Save output to `01-page-xxx.png`
-- Use aspect ratio `3:4`
-- Pass `characters/characters.png` as `--ref` on every page generation
+- Use aspect ratio from storyboard (default `3:4`, preset may override)
+- Pass `characters/characters.png` (or compressed version) as `--ref`
+
+**`--ref` failure recovery**:
+If generation fails when using `--ref`:
+1. **Compress/convert** reference image:
+   - `sips -s format jpeg -s formatOptions 70 characters.png --out characters-compressed.jpg`
+   - Or reduce resolution: `sips -Z 1024 characters.png --out characters-small.png`
+2. **Retry** with compressed/converted image as `--ref`
+3. **If still fails**: Fall back to **Strategy C** — generate WITHOUT `--ref`, with character descriptions embedded in prompt text
 
 **Strategy B: Embedding character descriptions in prompt**
 
@@ -458,10 +481,17 @@ When skill does NOT support reference images, create combined prompt files:
 [Original page prompt here]
 ```
 
+**Strategy C: Prompt-only (no character sheet)**
+
+When character sheet was skipped or `--ref` failed:
+- Prompt file already contains all character descriptions inline
+- No `--ref` parameter needed
+- Rely on detailed text descriptions for character consistency
+
 **For each page (cover + pages)**:
 1. Read prompt from `prompts/NN-{cover|page}-[slug].md`
 2. **Backup rule**: If image file exists, rename to `NN-{cover|page}-[slug]-backup-YYYYMMDD-HHMMSS.png`
-3. Generate image using Strategy A or B (based on skill capability)
+3. Generate image using Strategy A, B, or C
 4. Save to `NN-{cover|page}-[slug].png`
 5. Report progress after each generation: "Generated X/N: [page title]"
 
@@ -493,7 +523,7 @@ Title: [title] | Art: [art] | Tone: [tone] | Pages: [count] | Aspect: [ratio] | 
 Watermark: [enabled/disabled]
 Location: [path]
 ✓ analysis.md
-✓ characters.png
+✓ characters.png (if generated)
 ✓ 00-cover-[slug].png ... NN-page-[slug].png
 ✓ {topic-slug}.pdf
 ```

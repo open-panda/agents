@@ -24,26 +24,6 @@ Flat vector illustration with no gradients or 3D effects. Clear, uniform-thickne
 | Accent 2 | Rock Blue | #577590 | Cool balance |
 | Text | Black | #1A1A1A | Text elements |
 
-## Palette Variants
-
-### Warm Palette
-
-Use with `--preset warm-knowledge` or specify in prompt. For product showcases, team introductions, feature grids, brand content.
-
-| Role | Color | Hex | Usage |
-|------|-------|-----|-------|
-| Background | Soft Peach | #FFECD2 | Primary background |
-| Outlines | Deep Charcoal | #2D2D2D | All element outlines |
-| Primary | Warm Orange | #ED8936 | Main accent color |
-| Secondary | Terracotta | #C05621 | Warm depth |
-| Tertiary | Golden Yellow | #F6AD55 | Highlights, energy |
-| Accent | Deep Brown | #744210 | Grounding, anchoring |
-| Text | Warm Charcoal | #4A4A4A | Text elements |
-
-Warm-only palette, no cool colors (no green, blue, purple). Modern-retro feel.
-
-Default palette includes Mint Green (#81B29A) and Rock Blue (#577590) for colorful educational content. Warm palette uses exclusively warm tones for brand/product/team content.
-
 ## Visual Elements
 
 - All objects have closed black outlines (coloring book style)

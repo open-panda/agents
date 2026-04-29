@@ -34,6 +34,10 @@ Choose ONE pair based on content mood. The two colors dominate the entire image:
 - Minimal use of third color (only for small highlights)
 - High contrast figure-ground relationships
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 Movie posters, album covers, concert prints, dramatic announcements, cinematic content, bold branding, editorial covers, artistic campaigns

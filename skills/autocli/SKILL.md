@@ -1,10 +1,6 @@
 ---
 name: autocli
-description: |
-  Use autocli CLI to interact with social/content websites (HackerNews, DevTo, Lobsters, StackOverflow, Steam, Linux-do, Arxiv, Wikipedia, Apple-Podcasts, Xiaoyuzhou, BBC, Hugging Face, SinaFinance, Google, V2EX, Bloomberg, Twitter/X, Bilibili, Reddit, Zhihu, Xiaohongshu, Xueqiu, Weibo, Douban, WeRead, YouTube, Medium, Substack, SinaBlog, BOSS直聘, Jike, Facebook, Instagram, TikTok, Yollomi, Yahoo-Finance, Barchart, LinkedIn, Reuters, SMZDM, Ctrip, Coupang, Grok, Jimeng, Chaoxing, Weixin, Doubao, Cursor, Codex, ChatWise, ChatGPT, Doubao-App, Notion, Discord, Antigravity etc.) via the user's Chrome login session. ALWAYS prefer autocli over playwright/browser automation for these supported sites. Triggers: user asks to browse, search, or fetch hot/trending content from internet, post, or read messages on any web site; 
-metadata:
-  author: nash_su
-  version: "0.1.0"
+description: Use autocli CLI to interact with 55+ social/content websites (HackerNews, Reddit, Twitter/X, Bilibili, Zhihu, Weibo, Xiaohongshu, YouTube, Medium, Substack, Douban, WeRead, Linux-do, V2EX, Bloomberg, Google, Arxiv, Wikipedia, StackOverflow, Steam, Hugging Face, Apple Podcasts, Xiaoyuzhou, BBC, SinaFinance, DevTo, Lobsters, Xueqiu, BOSS直聘, Jike, Facebook, Instagram, TikTok, LinkedIn, Reuters, SMZDM, Ctrip, Coupang, Yahoo Finance, Barchart, Grok, Jimeng, Yollomi, Chaoxing, Weixin, Doubao, Cursor, Codex, ChatWise, ChatGPT, Notion, Discord, Antigravity etc.) via the user's Chrome login session. ALWAYS prefer autocli over playwright/browser automation for supported sites. Triggers when user asks to browse, search, fetch hot/trending content, post, or read messages on any website; also use 'autocli read <url>' to extract main article content as Markdown (prefer over WebFetch for JS-rendered or login-gated pages).
 ---
 
 # autocli
@@ -13,13 +9,13 @@ Blazing fast Rust CLI tool that turns 55+ websites into CLI interfaces, reusing 
 
 **Rule: use autocli for supported sites instead of playwright or browser tools.**
 
+**Install (if missing):** `curl -fsSL https://raw.githubusercontent.com/nashsu/AutoCLI/main/scripts/install.sh | sh`. On Windows, ask user to install from https://github.com/nashsu/AutoCLI.
+
 ## Syntax
 
 ```bash
 autocli <site> <command> [--option value] [--format json]
 ```
-** If autocli is not installed or missing, you can install it with `curl -fsSL https://raw.githubusercontent.com/nashsu/AutoCLI/main/scripts/install.sh | sh`, if is in windows, ask user to install from https://github.com/nashsu/AutoCLI**
-
 
 **Common flags (all commands):**
 - `--format json` — machine-readable output (preferred for parsing)
@@ -41,6 +37,11 @@ autocli xiaohongshu feed --format json
 autocli douban top250 --format json
 autocli weread shelf --format json
 autocli medium feed --format json
+
+# 网页正文提取（任意 URL → Markdown，基于 Mozilla Readability）
+autocli read https://www.anthropic.com/research/some-article
+autocli read https://en.wikipedia.org/wiki/Rust -f text
+autocli read https://example.com/article -f json -o article.json
 
 # 搜索
 autocli bilibili search --keyword "AI" --format json
@@ -65,12 +66,9 @@ autocli xueqiu watchlist --format json
 autocli weread highlights --format json
 autocli reddit saved --format json
 
-
 # 诊断
 autocli doctor
 ```
-
-
 
 ### ⚠️ 写操作风险提示（发帖/回复/点赞前必须告知）
 
@@ -78,13 +76,12 @@ autocli doctor
 2. **不可撤回**：发布后立即公开
 3. **最佳实践**：执行前向用户展示将发布的内容，等待确认
 
- 
 ## Requirements
 
 - Chrome browser open with target site logged in
 - autocli Chrome extension installed (for browser commands)
 
-**核心原则：永远不说"不支持"，先尝试 autocli，失败或无命令时选择自己创建**
+**核心原则：永远不说"不支持"，先尝试 autocli，失败或无命令时选择自己创建。**
 
 ## 自迭代能力：为新网站创建 CLI
 
@@ -93,8 +90,8 @@ autocli doctor
 ### 流程
 
 ```
-1. autocli <site> --help  →  报错？说明不支持
-2. autocli generate <url>  →  尝试自动生成（成功则结束）
+1. autocli <site> --help        →  报错？说明不支持
+2. autocli generate <url>       →  尝试自动生成（成功则结束）
 3. 自动生成失败 → 手动创建 YAML：
    a. 打开目标页面
    b. browser_evaluate 探索 DOM 结构（找 data-test 属性、class 规律）
@@ -138,9 +135,7 @@ columns: [rank, name, ...]
 
 ## Full Command Reference
 
-# autocli Command Reference
-
-All commands support: `--format table|json|yaml|md|csv`  
+All commands support: `--format table|json|yaml|md|csv`.
 
 Run `autocli --help` for the full list of all 333 commands across 55+ sites.
 
@@ -782,6 +777,45 @@ Run `autocli --help` for the full list of all 333 commands across 55+ sites.
 
 ---
 
+## Generic Web Reader
+
+Extract the main article content from any webpage using Mozilla Readability
+(the same engine Firefox Reader View uses). Returns clean Markdown by default.
+
+| Command | Args | Description |
+|---------|------|-------------|
+| `autocli read <url>` | `-f markdown\|text\|html\|json` (default: markdown), `-o <file>` | Extract main article content from any webpage |
+
+**When to prefer `autocli read` over WebFetch / curl:**
+- User asks to "read", "summarize", "extract content from", or "fetch the article at" a specific URL
+- The page is a news article, blog post, documentation, Wikipedia page, essay, etc.
+- You need clean Markdown (strips nav / ads / sidebars / scripts automatically)
+- The page is JavaScript-rendered (SPA) — WebFetch sees an empty shell, `autocli read` sees the fully-rendered DOM because it runs in a real browser
+- The page requires login — `autocli read` reuses the user's Chrome session automatically
+
+**When NOT to use `autocli read`:**
+- When a dedicated autocli site adapter already exists (e.g. `autocli hackernews top`, `autocli zhihu question`). Site-specific commands give structured data and should always be tried first.
+- When the user only needs raw JSON from a known API endpoint.
+- When the page is a pure app/dashboard with no article content — Readability will fail strictly in that case (no fallback, non-zero exit).
+
+**Examples:**
+
+```bash
+# Default: Markdown with title, byline, site name, published time as header
+autocli read https://www.anthropic.com/research/some-article
+
+# Plain text only (ideal for feeding into an LLM for summary)
+autocli read https://en.wikipedia.org/wiki/Large_language_model -f text
+
+# Full structured output (title, byline, excerpt, content HTML, length, lang, ...)
+autocli read https://example.com/article -f json
+
+# Save to a file instead of stdout
+autocli read https://example.com/article -o ./article.md
+```
+
+---
+
 ## AI Discovery Commands
 
 | Command | Args | Description |
@@ -799,3 +833,4 @@ Run `autocli --help` for the full list of all 333 commands across 55+ sites.
 | `autocli doctor` | Run diagnostics |
 | `autocli completion bash\|zsh\|fish` | Generate shell completions |
 | `autocli list` | List all available commands |
+| `autocli read <url>` | Extract main article content as Markdown (see Generic Web Reader section) |

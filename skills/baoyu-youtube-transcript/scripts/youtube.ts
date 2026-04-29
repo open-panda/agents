@@ -2,12 +2,13 @@ import { spawnSync } from "child_process";
 import { writeFileSync } from "fs";
 
 import { makeError, normalizeError, normalizePublishDate, shouldTryAlternateClient, shouldTryYtDlpFallback } from "./shared.ts";
-import { parseTranscriptPayload } from "./transcript.ts";
+import { findTranscript, parseTranscriptPayload } from "./transcript.ts";
 import type {
   Chapter,
   InnerTubeClient,
   InnerTubeSession,
   LanguageMeta,
+  Options,
   Snippet,
   TranscriptInfo,
   VideoMeta,
@@ -219,6 +220,68 @@ export async function fetchTranscriptSnippets(
   };
 }
 
+function buildYtDlpVideoSource(videoId: string, info: YtDlpInfo): VideoSource {
+  const transcripts = buildTranscriptListFromYtDlp(info);
+  if (!transcripts.length) throw makeError(`Transcripts disabled for ${videoId}`, "TRANSCRIPTS_DISABLED");
+  return { kind: "yt-dlp", info, transcripts };
+}
+
+function getRequestedLanguages(
+  source: VideoSource,
+  opts: Pick<Options, "languages" | "translate">
+): string[] {
+  return source.kind === "yt-dlp" && opts.translate ? [opts.translate] : opts.languages;
+}
+
+export async function fetchTranscriptWithFallback(
+  videoId: string,
+  source: VideoSource,
+  opts: Pick<Options, "languages" | "translate" | "excludeGenerated" | "excludeManual">,
+  fetchSnippets: (
+    info: TranscriptInfo,
+    translateTo?: string
+  ) => Promise<{ snippets: Snippet[]; language: string; languageCode: string }> = fetchTranscriptSnippets,
+  fetchFallbackSource: (videoId: string) => Promise<VideoSource> | VideoSource = (requestedVideoId) =>
+    buildYtDlpVideoSource(requestedVideoId, fetchYtDlpInfo(requestedVideoId)),
+  logWarning: (message: string) => void = (message) => console.error(message)
+): Promise<{
+  source: VideoSource;
+  transcript: TranscriptInfo;
+  snippets: Snippet[];
+  language: string;
+  languageCode: string;
+}> {
+  const transcript = findTranscript(
+    source.transcripts,
+    getRequestedLanguages(source, opts),
+    opts.excludeGenerated,
+    opts.excludeManual
+  );
+  const result = await fetchSnippets(transcript, source.kind === "yt-dlp" ? undefined : opts.translate || undefined);
+  if (result.snippets.length > 0) return { source, transcript, ...result };
+
+  if (source.kind === "yt-dlp") {
+    throw makeError(`Transcript fetch returned empty snippets for ${videoId}`, "EMPTY_TRANSCRIPT");
+  }
+
+  logWarning(`Warning (${videoId}): Transcript fetch returned empty snippets. Retrying with yt-dlp fallback.`);
+  const fallbackSource = await fetchFallbackSource(videoId);
+  const fallbackTranscript = findTranscript(
+    fallbackSource.transcripts,
+    getRequestedLanguages(fallbackSource, opts),
+    opts.excludeGenerated,
+    opts.excludeManual
+  );
+  const fallbackResult = await fetchSnippets(
+    fallbackTranscript,
+    fallbackSource.kind === "yt-dlp" ? undefined : opts.translate || undefined
+  );
+  if (!fallbackResult.snippets.length) {
+    throw makeError(`Transcript fetch returned empty snippets for ${videoId} after yt-dlp fallback`, "EMPTY_TRANSCRIPT");
+  }
+  return { source: fallbackSource, transcript: fallbackTranscript, ...fallbackResult };
+}
+
 export function detectYtDlpCommand(): { command: string; args: string[]; label: string } | null {
   if (cachedYtDlpCommand !== undefined) return cachedYtDlpCommand;
   const candidates = [
@@ -366,10 +429,7 @@ export async function resolveVideoSource(
     const normalized = normalizeError(error);
     if (!shouldTryYtDlpFallback(normalized)) throw normalized;
     logWarning(`Warning (${videoId}): ${normalized.message}. Retrying with yt-dlp fallback.`);
-    const info = fetchFallback(videoId);
-    const transcripts = buildTranscriptListFromYtDlp(info);
-    if (!transcripts.length) throw makeError(`Transcripts disabled for ${videoId}`, "TRANSCRIPTS_DISABLED");
-    return { kind: "yt-dlp", info, transcripts };
+    return buildYtDlpVideoSource(videoId, fetchFallback(videoId));
   }
 }
 

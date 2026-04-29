@@ -21,6 +21,10 @@ Cinematic, premium, atmospheric
 - Silhouettes with backlit edges
 - Subtle gradient backgrounds
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 Entertainment, premium brands, cinematic storytelling, dark mode, gaming, night themes

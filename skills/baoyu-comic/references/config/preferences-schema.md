@@ -16,12 +16,14 @@ watermark:
   content: ""
   position: bottom-right  # bottom-right|bottom-left|bottom-center|top-right
 
-preferred_art: null       # ligne-claire|manga|realistic|ink-brush|chalk
+preferred_art: null       # ligne-claire|manga|realistic|ink-brush|chalk|minimalist
 preferred_tone: null      # neutral|warm|dramatic|romantic|energetic|vintage|action
-preferred_layout: null    # standard|cinematic|dense|splash|mixed|webtoon
+preferred_layout: null    # standard|cinematic|dense|splash|mixed|webtoon|four-panel
 preferred_aspect: null    # 3:4|4:3|16:9
 
 language: null            # zh|en|ja|ko|auto
+
+preferred_image_backend: auto  # auto|ask|<backend-id>
 
 character_presets:
   - name: my-characters
@@ -41,11 +43,12 @@ character_presets:
 | `watermark.enabled` | bool | false | Enable watermark |
 | `watermark.content` | string | "" | Watermark text (@username or custom) |
 | `watermark.position` | enum | bottom-right | Position on image |
-| `preferred_art` | string | null | Art style (ligne-claire, manga, realistic, ink-brush, chalk) |
+| `preferred_art` | string | null | Art style (ligne-claire, manga, realistic, ink-brush, chalk, minimalist) |
 | `preferred_tone` | string | null | Tone (neutral, warm, dramatic, romantic, energetic, vintage, action) |
 | `preferred_layout` | string | null | Layout preference or null |
 | `preferred_aspect` | string | null | Aspect ratio (3:4, 4:3, 16:9) |
 | `language` | string | null | Output language (null = auto-detect) |
+| `preferred_image_backend` | string | `auto` | Image backend selection. `auto` = prefer runtime-native tool, fall back to the only installed backend, ask if multiple non-native are present. `ask` = always confirm on every run. `<backend-id>` (e.g., `codex-imagegen`, `baoyu-imagine`, `image_generate`) = pin this backend when available; fall back to `auto` when it isn't. Absent = `auto`. Resolution logic is documented in `SKILL.md`'s `## Image Generation Tools` section. |
 | `character_presets` | array | [] | Preset character roles for styles like ohmsha |
 
 ## Art Style Options
@@ -57,6 +60,7 @@ character_presets:
 | `realistic` | 写实 | Digital painting, realistic proportions |
 | `ink-brush` | 水墨 | Chinese brush strokes, ink wash effects |
 | `chalk` | 粉笔 | Chalkboard aesthetic, hand-drawn warmth |
+| `minimalist` | 极简 | Clean black line art, limited spot color, stick-figure characters |
 
 ## Tone Options
 
@@ -120,6 +124,8 @@ preferred_layout: webtoon
 preferred_aspect: "3:4"
 
 language: zh
+
+preferred_image_backend: codex-imagegen
 
 character_presets:
   - name: tech-tutorial

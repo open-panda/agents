@@ -11,6 +11,7 @@ Maps 16 preset styles to their dimension combinations.
 | corporate | clean | professional | geometric | balanced |
 | minimal | clean | neutral | geometric | minimal |
 | sketch-notes | organic | warm | handwritten | balanced |
+| hand-drawn-edu | organic | macaron | handwritten | balanced |
 | watercolor | organic | warm | humanist | minimal |
 | dark-atmospheric | clean | dark | editorial | balanced |
 | notion | clean | neutral | geometric | dense |
@@ -49,6 +50,11 @@ Maps 16 preset styles to their dimension combinations.
 - **Dimensions**: organic + warm + handwritten + balanced
 - **Feel**: Friendly learning, approachable education
 - **Auto-select**: tutorial, learn, education, guide, beginner
+
+### hand-drawn-edu
+- **Dimensions**: organic + macaron + handwritten + balanced
+- **Feel**: Hand-drawn educational infographic, macaron pastel zones
+- **Auto-select**: hand-drawn, infographic, diagram, process, onboarding
 
 ### watercolor
 - **Dimensions**: organic + warm + humanist + minimal
@@ -114,7 +120,7 @@ When user selects "Custom dimensions", combine any:
 - **Typography** (5): geometric, humanist, handwritten, editorial, technical
 - **Density** (3): minimal, balanced, dense
 
-Total possible combinations: 5 × 6 × 5 × 3 = **450 unique styles**
+Total possible combinations: 5 × 7 × 5 × 3 = **525 unique styles**
 
 ## Recommended Combinations (Beyond Presets)
 

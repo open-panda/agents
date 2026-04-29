@@ -23,6 +23,7 @@
 | `vintage` | `retro` | `hand-drawn` |
 | `warm` | `warm` | `hand-drawn` |
 | `warm-flat` | `warm` | `flat-vector` |
+| `hand-drawn-edu` | `macaron` | `hand-drawn` |
 | `watercolor` | `earth` | `painterly` |
 | `poster-art` | `retro` | `screen-print` |
 | `mondo` | `mono` | `screen-print` |

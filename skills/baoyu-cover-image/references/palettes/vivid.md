@@ -21,6 +21,10 @@ Energetic, bold, attention-grabbing
 - Dramatic lighting effects
 - High-energy visual compositions
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 Product launch, gaming, promotion, event, marketing, announcements, brand showcases

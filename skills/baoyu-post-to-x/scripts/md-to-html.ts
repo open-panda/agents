@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { createHash } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 
 import frontMatter from 'front-matter';
 import hljs from 'highlight.js/lib/common';
@@ -458,7 +459,9 @@ async function main(): Promise<void> {
   }
 }
 
-await main().catch((err) => {
-  console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main().catch((err) => {
+    console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
+  });
+}

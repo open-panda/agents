@@ -21,6 +21,10 @@ Natural, organic, grounded
 - Botanical illustrations
 - Earthy textures and natural patterns
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 Nature, wellness, eco, organic, travel, sustainability, outdoor topics, slow living

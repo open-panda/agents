@@ -73,8 +73,8 @@ async function createPdf(slides: SlideInfo[], outputPath: string) {
 
   for (const slide of slides) {
     const imageData = readFileSync(slide.path);
-    const ext = slide.filename.toLowerCase();
-    const image = ext.endsWith(".png")
+    const isPng = imageData[0] === 0x89 && imageData[1] === 0x50 && imageData[2] === 0x4e && imageData[3] === 0x47;
+    const image = isPng
       ? await pdfDoc.embedPng(imageData)
       : await pdfDoc.embedJpg(imageData);
 

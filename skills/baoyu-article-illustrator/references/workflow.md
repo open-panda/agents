@@ -176,6 +176,8 @@ Based on Step 2 content analysis, recommend a preset first (sets both type & sty
 - [Alternative preset] — [brief]
 - Or choose type manually: infographic / scene / flowchart / comparison / framework / timeline / mixed
 
+**Default**: if Step 2 found no strong content signal, the recommended preset MUST be `hand-drawn-edu` (infographic + sketch-notes + macaron — warm cream paper, black hand-drawn lines, soft pastel blocks). This is the universal fallback.
+
 **If user picks a preset → skip Q3** (type & style both resolved).
 **If user picks a type → Q3 is REQUIRED.**
 
@@ -203,17 +205,32 @@ If no `preferred_style` (present Core Styles first):
 
 | Core Style | Maps To | Best For |
 |------------|---------|----------|
+| `hand-drawn` | sketch-notes | **Default.** Warm cream paper, black hand-drawn lines, pastel blocks — educational infographics, concept explainers, onboarding, general knowledge articles |
 | `minimal-flat` | notion | General, knowledge sharing, SaaS |
 | `sci-fi` | blueprint | AI, frontier tech, system design |
-| `hand-drawn` | sketch/warm | Relaxed, reflective, casual |
 | `editorial` | editorial | Processes, data, journalism |
 | `scene` | warm/watercolor | Narratives, emotional, lifestyle |
 | `poster` | screen-print | Opinion, editorial, cultural, cinematic |
 
-Style selection based on Type × Style compatibility matrix (styles.md).
-Full specs: `styles/<style>.md`
+**Default recommendation**: when Step 2 surfaces no strong content signal, recommend **`hand-drawn-edu`** preset (→ infographic + sketch-notes + macaron) as the primary option in Q1. When the user picks a type manually without a preferred_style, recommend `sketch-notes` first in Q3.
 
-### Q4: Image Text Language ⚠️ REQUIRED when article language ≠ EXTEND.md `language`
+Style selection based on Type × Style compatibility matrix (styles.md).
+**In Step 5.1**, read `styles/<style>.md` for visual elements and rendering rules.
+
+### Q4: Palette (optional)
+
+If preset did not specify a palette, and the user may benefit from a palette override, offer available palettes:
+
+- Default (use style's built-in colors) (Recommended)
+- `macaron` — soft pastel blocks on warm cream
+- `warm` — warm earth tones, no cool colors
+- `neon` — vibrant neon on dark backgrounds
+
+**Skip if**: preset already resolved palette, or `preferred_palette` set in EXTEND.md.
+
+See Palette Gallery in [styles.md](styles.md#palette-gallery) and full specs in `palettes/<palette>.md`.
+
+### Q5: Image Text Language ⚠️ REQUIRED when article language ≠ EXTEND.md `language`
 
 Detect article language from content. If different from EXTEND.md `language` setting, MUST ask:
 - Article language (match article content) (Recommended)
@@ -294,16 +311,18 @@ For each illustration in the outline:
    style: custom-flat-vector
    ---
    ```
-3. **Follow type-specific template** from [prompt-construction.md](prompt-construction.md)
-4. **Prompt quality requirements** (all REQUIRED):
+3. **Load style specs**: Read `styles/<style>.md` for visual elements, style rules, and rendering instructions
+4. **Load palette specs** (if palette specified): Read `palettes/<palette>.md` for colors and background. Palette colors **replace** the style's default Color Palette. If no palette specified, use the style's built-in colors.
+5. **Follow type-specific template** from [prompt-construction.md](prompt-construction.md), using rendering from style + colors from palette (or style default)
+6. **Prompt quality requirements** (all REQUIRED):
    - `Layout`: Describe overall composition (grid / radial / hierarchical / left-right / top-down)
    - `ZONES`: Describe each visual area with specific content, not vague descriptions
    - `LABELS`: Use **actual numbers, terms, metrics, quotes from the article** — NOT generic placeholders
-   - `COLORS`: Specify hex codes with semantic meaning (e.g., `Coral (#E07A5F) for emphasis`)
-   - `STYLE`: Describe line treatment, texture, mood, character rendering
+   - `COLORS`: Specify hex codes from palette (or style default) with semantic meaning
+   - `STYLE`: Describe line treatment, texture, mood, character rendering per style rules
    - `ASPECT`: Specify ratio (e.g., `16:9`)
-5. **Apply defaults**: composition requirements, character rendering, text guidelines, watermark
-6. **Backup rule**: If prompt file exists, rename to `prompts/NN-{type}-{slug}-backup-YYYYMMDD-HHMMSS.md`
+7. **Apply defaults**: composition requirements, character rendering, text guidelines, watermark
+8. **Backup rule**: If prompt file exists, rename to `prompts/NN-{type}-{slug}-backup-YYYYMMDD-HHMMSS.md`
 
 **Verification** ⛔: Before proceeding to 5.2, confirm ALL prompt files exist:
 ```
@@ -316,7 +335,7 @@ Prompt Files:
 **DO NOT** pass ad-hoc inline text to `--prompt` without first saving prompt files. The generation command should either use `--promptfiles prompts/NN-{type}-{slug}.md` or read the saved file content for `--prompt`.
 
 **Execution choice**:
-- If multiple illustrations already have saved prompt files and the task is now plain generation, prefer `baoyu-imagine` batch mode (`build-batch.ts` -> `main.ts --batchfile`)
+- If multiple illustrations already have saved prompt files and the task is now plain generation, prefer the chosen backend's batch interface (if it offers one); otherwise generate sequentially
 - Use subagents only when each illustration still needs separate prompt rewriting, style exploration, or other per-image reasoning before generation
 
 **CRITICAL - References in Frontmatter**:

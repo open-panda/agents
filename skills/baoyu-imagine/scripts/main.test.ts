@@ -17,7 +17,9 @@ import {
   mergeConfig,
   normalizeOutputImagePath,
   parseArgs,
+  parseOpenAIImageApiDialect,
   parseSimpleYaml,
+  validateReferenceImages,
 } from "./main.ts";
 
 function makeArgs(overrides: Partial<CliArgs> = {}): CliArgs {
@@ -28,9 +30,12 @@ function makeArgs(overrides: Partial<CliArgs> = {}): CliArgs {
     provider: null,
     model: null,
     aspectRatio: null,
+    aspectRatioSource: null,
     size: null,
     quality: null,
     imageSize: null,
+    imageSizeSource: null,
+    imageApiDialect: null,
     referenceImages: [],
     n: 1,
     batchFile: null,
@@ -78,11 +83,13 @@ test("parseArgs parses the main baoyu-imagine CLI flags", () => {
     "--image",
     "out/hero",
     "--provider",
-    "openai",
+    "zai",
     "--quality",
     "2k",
     "--imageSize",
     "4k",
+    "--imageApiDialect",
+    "ratio-metadata",
     "--ref",
     "ref/one.png",
     "ref/two.jpg",
@@ -95,9 +102,12 @@ test("parseArgs parses the main baoyu-imagine CLI flags", () => {
 
   assert.deepEqual(args.promptFiles, ["prompts/system.md", "prompts/content.md"]);
   assert.equal(args.imagePath, "out/hero");
-  assert.equal(args.provider, "openai");
+  assert.equal(args.provider, "zai");
   assert.equal(args.quality, "2k");
+  assert.equal(args.aspectRatioSource, null);
   assert.equal(args.imageSize, "4K");
+  assert.equal(args.imageSizeSource, "cli");
+  assert.equal(args.imageApiDialect, "ratio-metadata");
   assert.deepEqual(args.referenceImages, ["ref/one.png", "ref/two.jpg"]);
   assert.equal(args.n, 3);
   assert.equal(args.jobs, 5);
@@ -114,6 +124,15 @@ test("parseArgs falls back to positional prompt and rejects invalid provider", (
   );
 });
 
+test("validateReferenceImages can skip remote URLs for providers that support them", async () => {
+  await validateReferenceImages(["https://example.com/ref.png"], { allowRemoteUrls: true });
+
+  await assert.rejects(
+    () => validateReferenceImages(["https://example.com/ref.png"]),
+    /Reference image not found/,
+  );
+});
+
 test("parseSimpleYaml parses nested defaults and provider limits", () => {
   const yaml = `
 version: 2
@@ -121,9 +140,11 @@ default_provider: openrouter
 default_quality: normal
 default_aspect_ratio: '16:9'
 default_image_size: 2K
+default_image_api_dialect: ratio-metadata
 default_model:
   google: gemini-3-pro-image-preview
-  openai: gpt-image-1.5
+  openai: gpt-image-2
+  zai: glm-image
   azure: image-prod
   minimax: image-01
 batch:
@@ -134,6 +155,9 @@ batch:
       start_interval_ms: 900
     openai:
       concurrency: 4
+    zai:
+      concurrency: 2
+      start_interval_ms: 1000
     minimax:
       concurrency: 2
       start_interval_ms: 1400
@@ -149,8 +173,10 @@ batch:
   assert.equal(config.default_quality, "normal");
   assert.equal(config.default_aspect_ratio, "16:9");
   assert.equal(config.default_image_size, "2K");
+  assert.equal(config.default_image_api_dialect, "ratio-metadata");
   assert.equal(config.default_model?.google, "gemini-3-pro-image-preview");
-  assert.equal(config.default_model?.openai, "gpt-image-1.5");
+  assert.equal(config.default_model?.openai, "gpt-image-2");
+  assert.equal(config.default_model?.zai, "glm-image");
   assert.equal(config.default_model?.azure, "image-prod");
   assert.equal(config.default_model?.minimax, "image-01");
   assert.equal(config.batch?.max_workers, 8);
@@ -160,6 +186,10 @@ batch:
   });
   assert.deepEqual(config.batch?.provider_limits?.openai, {
     concurrency: 4,
+  });
+  assert.deepEqual(config.batch?.provider_limits?.zai, {
+    concurrency: 2,
+    start_interval_ms: 1000,
   });
   assert.deepEqual(config.batch?.provider_limits?.minimax, {
     concurrency: 2,
@@ -239,13 +269,48 @@ test("mergeConfig only fills values missing from CLI args", () => {
       default_quality: "2k",
       default_aspect_ratio: "3:2",
       default_image_size: "2K",
+      default_image_api_dialect: "ratio-metadata",
     } satisfies Partial<ExtendConfig>,
   );
 
   assert.equal(merged.provider, "openai");
   assert.equal(merged.quality, "2k");
   assert.equal(merged.aspectRatio, "3:2");
+  assert.equal(merged.aspectRatioSource, "config");
   assert.equal(merged.imageSize, "4K");
+  assert.equal(merged.imageSizeSource, "cli");
+  assert.equal(merged.imageApiDialect, "ratio-metadata");
+});
+
+test("mergeConfig tags inherited imageSize defaults so providers can ignore incompatible config", () => {
+  const merged = mergeConfig(
+    makeArgs(),
+    {
+      default_image_size: "2K",
+    } satisfies Partial<ExtendConfig>,
+  );
+
+  assert.equal(merged.imageSize, "2K");
+  assert.equal(merged.imageSizeSource, "config");
+});
+
+test("mergeConfig falls back to OPENAI_IMAGE_API_DIALECT when CLI and EXTEND are unset", (t) => {
+  useEnv(t, {
+    OPENAI_IMAGE_API_DIALECT: "ratio-metadata",
+  });
+
+  const merged = mergeConfig(makeArgs(), {});
+  assert.equal(merged.imageApiDialect, "ratio-metadata");
+});
+
+test("parseOpenAIImageApiDialect validates supported values", () => {
+  assert.equal(parseOpenAIImageApiDialect("openai-native"), "openai-native");
+  assert.equal(parseOpenAIImageApiDialect("ratio-metadata"), "ratio-metadata");
+  assert.equal(parseOpenAIImageApiDialect(null), null);
+  assert.throws(
+    () => parseOpenAIImageApiDialect("gateway-magic"),
+    /Invalid OpenAI image API dialect/,
+  );
 });
 
 test("detectProvider rejects non-ref-capable providers and prefers Google first when multiple keys exist", (t) => {
@@ -253,7 +318,7 @@ test("detectProvider rejects non-ref-capable providers and prefers Google first 
     () =>
       detectProvider(
         makeArgs({
-          provider: "dashscope",
+          provider: "zai",
           referenceImages: ["ref.png"],
         }),
       ),
@@ -316,6 +381,27 @@ test("detectProvider selects Azure when only Azure credentials are configured", 
   );
 });
 
+test("detectProvider selects Z.AI when credentials are present or the model id matches", (t) => {
+  useEnv(t, {
+    GOOGLE_API_KEY: null,
+    OPENAI_API_KEY: null,
+    AZURE_OPENAI_API_KEY: null,
+    AZURE_OPENAI_BASE_URL: null,
+    OPENROUTER_API_KEY: null,
+    DASHSCOPE_API_KEY: null,
+    ZAI_API_KEY: "zai-key",
+    BIGMODEL_API_KEY: null,
+    MINIMAX_API_KEY: null,
+    REPLICATE_API_TOKEN: null,
+    JIMENG_ACCESS_KEY_ID: null,
+    JIMENG_SECRET_ACCESS_KEY: null,
+    ARK_API_KEY: null,
+  });
+
+  assert.equal(detectProvider(makeArgs()), "zai");
+  assert.equal(detectProvider(makeArgs({ model: "glm-image" })), "zai");
+});
+
 test("detectProvider infers Seedream from model id and allows Seedream reference-image workflows", (t) => {
   useEnv(t, {
     GOOGLE_API_KEY: null,
@@ -350,6 +436,33 @@ test("detectProvider infers Seedream from model id and allows Seedream reference
   );
 });
 
+test("detectProvider allows DashScope reference-image workflows when explicitly chosen for wan2.7 models", (t) => {
+  useEnv(t, {
+    GOOGLE_API_KEY: null,
+    OPENAI_API_KEY: null,
+    AZURE_OPENAI_API_KEY: null,
+    AZURE_OPENAI_BASE_URL: null,
+    OPENROUTER_API_KEY: null,
+    DASHSCOPE_API_KEY: "dashscope-key",
+    MINIMAX_API_KEY: null,
+    REPLICATE_API_TOKEN: null,
+    JIMENG_ACCESS_KEY_ID: null,
+    JIMENG_SECRET_ACCESS_KEY: null,
+    ARK_API_KEY: null,
+  });
+
+  assert.equal(
+    detectProvider(
+      makeArgs({
+        provider: "dashscope",
+        model: "wan2.7-image-pro",
+        referenceImages: ["ref.png"],
+      }),
+    ),
+    "dashscope",
+  );
+});
+
 test("detectProvider selects MiniMax when only MiniMax credentials are configured or the model id matches", (t) => {
   useEnv(t, {
     GOOGLE_API_KEY: null,
@@ -375,6 +488,7 @@ test("batch worker and provider-rate-limit configuration prefer env over EXTEND 
     BAOYU_IMAGE_GEN_MAX_WORKERS: "12",
     BAOYU_IMAGE_GEN_GOOGLE_CONCURRENCY: "5",
     BAOYU_IMAGE_GEN_GOOGLE_START_INTERVAL_MS: "450",
+    BAOYU_IMAGE_GEN_ZAI_CONCURRENCY: "4",
   });
 
   const extendConfig: Partial<ExtendConfig> = {
@@ -384,6 +498,10 @@ test("batch worker and provider-rate-limit configuration prefer env over EXTEND 
         google: {
           concurrency: 2,
           start_interval_ms: 900,
+        },
+        zai: {
+          concurrency: 1,
+          start_interval_ms: 1200,
         },
         minimax: {
           concurrency: 1,
@@ -397,6 +515,10 @@ test("batch worker and provider-rate-limit configuration prefer env over EXTEND 
   assert.deepEqual(getConfiguredProviderRateLimits(extendConfig).google, {
     concurrency: 5,
     startIntervalMs: 450,
+  });
+  assert.deepEqual(getConfiguredProviderRateLimits(extendConfig).zai, {
+    concurrency: 4,
+    startIntervalMs: 1200,
   });
   assert.deepEqual(getConfiguredProviderRateLimits(extendConfig).minimax, {
     concurrency: 1,
@@ -419,7 +541,7 @@ test("loadBatchTasks and createTaskArgs resolve batch-relative paths", async (t)
           id: "hero",
           promptFiles: ["prompts/hero.md"],
           image: "out/hero",
-          ref: ["refs/hero.png"],
+          ref: ["refs/hero.png", "https://example.com/ref.png"],
           ar: "16:9",
         },
       ],
@@ -435,6 +557,7 @@ test("loadBatchTasks and createTaskArgs resolve batch-relative paths", async (t)
     makeArgs({
       provider: "replicate",
       quality: "2k",
+      imageApiDialect: "ratio-metadata",
       json: true,
     }),
     loaded.tasks[0]!,
@@ -447,10 +570,12 @@ test("loadBatchTasks and createTaskArgs resolve batch-relative paths", async (t)
   assert.equal(taskArgs.imagePath, path.join(loaded.batchDir, "out/hero"));
   assert.deepEqual(taskArgs.referenceImages, [
     path.join(loaded.batchDir, "refs/hero.png"),
+    "https://example.com/ref.png",
   ]);
   assert.equal(taskArgs.provider, "replicate");
   assert.equal(taskArgs.aspectRatio, "16:9");
   assert.equal(taskArgs.quality, "2k");
+  assert.equal(taskArgs.imageApiDialect, "ratio-metadata");
   assert.equal(taskArgs.json, true);
 });
 
@@ -464,5 +589,35 @@ test("path normalization, worker count, and retry classification follow expected
   assert.equal(getWorkerCount(5, 0, 4), 1);
 
   assert.equal(isRetryableGenerationError(new Error("API error (401): denied")), false);
+  assert.equal(
+    isRetryableGenerationError(
+      new Error("Replicate returned 2 outputs, but baoyu-imagine currently supports saving exactly one image per request."),
+    ),
+    false,
+  );
+  assert.equal(
+    isRetryableGenerationError(
+      new Error("DashScope wan2.7 image models accept at most 9 reference images. Received 10."),
+    ),
+    false,
+  );
+  assert.equal(
+    isRetryableGenerationError(
+      new Error("DashScope wan2.7 image models in baoyu-imagine support exactly one output image per request."),
+    ),
+    false,
+  );
+  assert.equal(
+    isRetryableGenerationError(
+      new Error("DashScope wan2.7 image models support aspect ratios in [1:8, 8:1]."),
+    ),
+    false,
+  );
+  assert.equal(
+    isRetryableGenerationError(
+      new Error("DashScope wan2.7-image requires total pixels between 768*768 and 2048*2048."),
+    ),
+    false,
+  );
   assert.equal(isRetryableGenerationError(new Error("socket hang up")), true);
 });

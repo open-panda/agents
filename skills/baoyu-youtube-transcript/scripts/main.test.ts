@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { findTranscript, parseTranscriptJson3, parseWebVtt } from "./transcript.ts";
-import { buildTranscriptListFromYtDlp, resolveVideoSource, selectYtDlpTrack } from "./youtube.ts";
+import { buildTranscriptListFromYtDlp, fetchTranscriptWithFallback, resolveVideoSource, selectYtDlpTrack } from "./youtube.ts";
 
 test("selectYtDlpTrack prefers json3 over xml and vtt", () => {
   const track = selectYtDlpTrack([
@@ -122,4 +122,62 @@ test("resolveVideoSource falls back to yt-dlp only after fallback-eligible error
   assert.equal(source.kind, "yt-dlp");
   assert.equal(fallbackCalled, true);
   assert.equal(source.transcripts[0].languageCode, "en");
+});
+
+test("fetchTranscriptWithFallback retries with yt-dlp when InnerTube transcript payload is empty", async () => {
+  const warnings: string[] = [];
+  let fallbackCalled = false;
+  const result = await fetchTranscriptWithFallback(
+    "video12345ab",
+    {
+      kind: "innertube",
+      data: { videoDetails: { title: "Primary" } },
+      transcripts: [{
+        language: "English",
+        languageCode: "en",
+        isGenerated: false,
+        isTranslatable: false,
+        baseUrl: "https://www.youtube.com/api/timedtext?v=video12345ab&lang=en&fmt=json3",
+        translationLanguages: [],
+      }],
+    },
+    {
+      languages: ["en"],
+      translate: "",
+      excludeGenerated: false,
+      excludeManual: false,
+    },
+    async (info) => {
+      if (info.baseUrl.includes("youtube.com/api/timedtext")) {
+        return { snippets: [], language: info.language, languageCode: info.languageCode };
+      }
+      return {
+        snippets: [{ text: "Recovered subtitle", start: 0, duration: 2 }],
+        language: info.language,
+        languageCode: info.languageCode,
+      };
+    },
+    async () => {
+      fallbackCalled = true;
+      return {
+        kind: "yt-dlp",
+        info: { title: "Fallback" },
+        transcripts: [{
+          language: "English",
+          languageCode: "en",
+          isGenerated: false,
+          isTranslatable: false,
+          baseUrl: "https://example.com/subtitles.en.json3",
+          translationLanguages: [],
+        }],
+      };
+    },
+    (message) => warnings.push(message)
+  );
+
+  assert.equal(fallbackCalled, true);
+  assert.equal(result.source.kind, "yt-dlp");
+  assert.equal(result.snippets.length, 1);
+  assert.equal(result.snippets[0].text, "Recovered subtitle");
+  assert.match(warnings[0] || "", /Retrying with yt-dlp fallback/);
 });

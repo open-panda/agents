@@ -21,6 +21,10 @@ Technical, professional, precise
 - Technical schematics and diagrams
 - Geometric precision elements
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 Architecture, system design, API, technical documentation, engineering, data analysis

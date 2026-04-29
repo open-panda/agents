@@ -24,6 +24,8 @@ preferred_layout: null    # sparse|balanced|dense|list|comparison|flow
 
 language: null            # zh|en|ja|ko|auto
 
+preferred_image_backend: auto  # auto|ask|<backend-id>
+
 custom_styles:
   - name: my-style
     description: "Style description"
@@ -49,6 +51,7 @@ custom_styles:
 | `preferred_style.description` | string | "" | Custom notes/override |
 | `preferred_layout` | string | null | Layout preference or null |
 | `language` | string | null | Output language (null = auto-detect) |
+| `preferred_image_backend` | string | `auto` | Image backend selection. `auto` = prefer runtime-native tool, fall back to the only installed backend, ask if multiple non-native are present. `ask` = always confirm on every run. `<backend-id>` (e.g., `codex-imagegen`, `baoyu-imagine`, `image_generate`) = pin this backend when available; fall back to `auto` when it isn't. Absent = `auto`. Resolution logic is documented in `SKILL.md`'s `## Image Generation Tools` section. |
 | `custom_styles` | array | [] | User-defined styles |
 
 ## Position Options
@@ -103,6 +106,8 @@ preferred_style:
 preferred_layout: dense
 
 language: zh
+
+preferred_image_backend: codex-imagegen
 
 custom_styles:
   - name: corporate

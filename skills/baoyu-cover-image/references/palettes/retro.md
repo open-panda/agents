@@ -25,6 +25,10 @@ Nostalgic, vintage, classic
 - Pill-shaped clouds, small dots and stars
 - Classic icons and retro motifs
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 History, vintage, retro, classic, exploration, retrospectives, throwback content, creative proposals, educational

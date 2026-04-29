@@ -55,6 +55,6 @@ Visual texture and background treatment.
 |---------|-----------------|------------|
 | clean | professional, neutral moods | handwritten typography |
 | grid | cool, professional moods | handwritten, vibrant moods |
-| organic | warm, vibrant moods | technical typography |
+| organic | warm, macaron, vibrant moods | technical typography |
 | pixel | vibrant, dark moods | editorial typography |
 | paper | warm moods | geometric typography, minimal density |

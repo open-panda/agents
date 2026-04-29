@@ -4,6 +4,7 @@ import path from "node:path";
 import process from "node:process";
 
 import {
+  cleanSummaryText,
   extractSummaryFromBody,
   extractTitleFromMarkdown,
   parseFrontmatter,
@@ -47,8 +48,9 @@ export async function convertMarkdown(
   }
 
   const author = stripWrappingQuotes(frontmatter.author ?? "");
-  let summary = stripWrappingQuotes(frontmatter.description ?? "")
+  const frontmatterSummary = stripWrappingQuotes(frontmatter.description ?? "")
     || stripWrappingQuotes(frontmatter.summary ?? "");
+  let summary = cleanSummaryText(frontmatterSummary);
   if (!summary) {
     summary = extractSummaryFromBody(body, 120);
   }

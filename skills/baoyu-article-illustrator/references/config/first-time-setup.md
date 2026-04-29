@@ -61,8 +61,10 @@ Position defaults to bottom-right.
 header: "Style"
 question: "Default illustration style preference? Or type another style name or your custom style"
 options:
-  - label: "None (Recommended)"
-    description: "Auto-select based on content analysis"
+  - label: "sketch-notes (Recommended)"
+    description: "Warm cream paper, black hand-drawn lines, soft pastel blocks — educational infographic feel. Great default for most articles."
+  - label: "None"
+    description: "Auto-select based on content analysis (falls back to sketch-notes when no strong signal)"
   - label: "notion"
     description: "Minimalist hand-drawn line art"
   - label: "warm"
@@ -126,13 +128,13 @@ preferred_style:
   description: ""
 default_output_dir: imgs-subdir  # same-dir | imgs-subdir | illustrations-subdir | independent
 language: null
+preferred_image_backend: auto
 custom_styles: []
 ---
 ```
 
+`preferred_image_backend: auto` is the baked-in default — first-time setup does not ask about it. The `## Image Generation Tools` rule in SKILL.md then picks the runtime-native tool (Codex `imagegen`, Hermes `image_generate`, etc.) when available, and falls back to installed backends.
+
 ## Modifying Preferences Later
 
-Users can edit EXTEND.md directly or run setup again:
-- Delete EXTEND.md to trigger setup
-- Edit YAML frontmatter for quick changes
-- Full schema: `config/preferences-schema.md`
+See the `## Changing Preferences` section in `SKILL.md` for the canonical list of common edits (pin backend, change defaults, retrigger setup). Full schema: `preferences-schema.md`.

@@ -8,6 +8,7 @@ import type {
   BatchTaskInput,
   CliArgs,
   ExtendConfig,
+  OpenAIImageApiDialect,
   Provider,
 } from "./types";
 
@@ -58,6 +59,7 @@ const DEFAULT_PROVIDER_RATE_LIMITS: Record<Provider, ProviderRateLimit> = {
   openai: { concurrency: 3, startIntervalMs: 1100 },
   openrouter: { concurrency: 3, startIntervalMs: 1100 },
   dashscope: { concurrency: 3, startIntervalMs: 1100 },
+  zai: { concurrency: 3, startIntervalMs: 1100 },
   minimax: { concurrency: 3, startIntervalMs: 1100 },
   jimeng: { concurrency: 3, startIntervalMs: 1100 },
   seedream: { concurrency: 3, startIntervalMs: 1100 },
@@ -76,14 +78,15 @@ Options:
   --image <path>            Output image path (required in single-image mode)
   --batchfile <path>        JSON batch file for multi-image generation
   --jobs <count>            Worker count for batch mode (default: auto, max from config, built-in default 10)
-  --provider google|openai|openrouter|dashscope|minimax|replicate|jimeng|seedream|azure  Force provider (auto-detect by default)
+  --provider google|openai|openrouter|dashscope|zai|minimax|replicate|jimeng|seedream|azure  Force provider (auto-detect by default)
   -m, --model <id>          Model ID
   --ar <ratio>              Aspect ratio (e.g., 16:9, 1:1, 4:3)
   --size <WxH>              Size (e.g., 1024x1024)
   --quality normal|2k       Quality preset (default: 2k)
   --imageSize 1K|2K|4K      Image size for Google/OpenRouter (default: from quality)
-  --ref <files...>          Reference images (Google, OpenAI, Azure, OpenRouter, Replicate, MiniMax, or Seedream 4.0/4.5/5.0)
-  --n <count>               Number of images for the current task (default: 1)
+  --imageApiDialect <id>    OpenAI-compatible image dialect: openai-native|ratio-metadata
+  --ref <files...>          Reference images (Google, OpenAI, Azure, OpenRouter, Replicate supported families, MiniMax, Seedream 4.0/4.5/5.0, or DashScope wan2.7-image*)
+  --n <count>               Number of images for the current task (default: 1; Replicate currently requires 1)
   --json                    JSON output
   -h, --help                Show help
 
@@ -96,7 +99,7 @@ Batch file format:
         "promptFiles": ["prompts/hero.md"],
         "image": "out/hero.png",
         "provider": "replicate",
-        "model": "google/nano-banana-pro",
+        "model": "google/nano-banana-2",
         "ar": "16:9"
       }
     ]
@@ -106,6 +109,7 @@ Behavior:
   - Batch mode automatically runs in parallel when pending tasks >= 2
   - Each image retries automatically up to 3 attempts
   - Batch summary reports success count, failure count, and per-image errors
+  - Replicate currently supports single-image save semantics only; --n must stay at 1
 
 Environment variables:
   OPENAI_API_KEY            OpenAI API key
@@ -113,26 +117,33 @@ Environment variables:
   GOOGLE_API_KEY            Google API key
   GEMINI_API_KEY            Gemini API key (alias for GOOGLE_API_KEY)
   DASHSCOPE_API_KEY         DashScope API key
+  ZAI_API_KEY               Z.AI API key
+  BIGMODEL_API_KEY          Backward-compatible alias for Z.AI API key
   MINIMAX_API_KEY           MiniMax API key
   REPLICATE_API_TOKEN       Replicate API token
   JIMENG_ACCESS_KEY_ID      Jimeng Access Key ID
   JIMENG_SECRET_ACCESS_KEY  Jimeng Secret Access Key
   ARK_API_KEY               Seedream/Ark API key
-  OPENAI_IMAGE_MODEL        Default OpenAI model (gpt-image-1.5)
+  OPENAI_IMAGE_MODEL        Default OpenAI model (gpt-image-2)
   OPENROUTER_IMAGE_MODEL    Default OpenRouter model (google/gemini-3.1-flash-image-preview)
   GOOGLE_IMAGE_MODEL        Default Google model (gemini-3-pro-image-preview)
   DASHSCOPE_IMAGE_MODEL     Default DashScope model (qwen-image-2.0-pro)
+  ZAI_IMAGE_MODEL           Default Z.AI model (glm-image)
+  BIGMODEL_IMAGE_MODEL      Backward-compatible alias for Z.AI model (glm-image)
   MINIMAX_IMAGE_MODEL       Default MiniMax model (image-01)
-  REPLICATE_IMAGE_MODEL     Default Replicate model (google/nano-banana-pro)
+  REPLICATE_IMAGE_MODEL     Default Replicate model (google/nano-banana-2)
   JIMENG_IMAGE_MODEL        Default Jimeng model (jimeng_t2i_v40)
   SEEDREAM_IMAGE_MODEL      Default Seedream model (doubao-seedream-5-0-260128)
   OPENAI_BASE_URL           Custom OpenAI endpoint
+  OPENAI_IMAGE_API_DIALECT  OpenAI-compatible image dialect (openai-native|ratio-metadata)
   OPENAI_IMAGE_USE_CHAT     Use /chat/completions instead of /images/generations (true|false)
   OPENROUTER_BASE_URL       Custom OpenRouter endpoint
   OPENROUTER_HTTP_REFERER   Optional app URL for OpenRouter attribution
   OPENROUTER_TITLE          Optional app name for OpenRouter attribution
   GOOGLE_BASE_URL           Custom Google endpoint
   DASHSCOPE_BASE_URL        Custom DashScope endpoint
+  ZAI_BASE_URL              Custom Z.AI endpoint
+  BIGMODEL_BASE_URL         Backward-compatible alias for Z.AI endpoint
   MINIMAX_BASE_URL          Custom MiniMax endpoint
   REPLICATE_BASE_URL        Custom Replicate endpoint
   JIMENG_BASE_URL           Custom Jimeng endpoint
@@ -140,7 +151,7 @@ Environment variables:
   AZURE_OPENAI_BASE_URL     Azure OpenAI resource or deployment endpoint
   AZURE_OPENAI_DEPLOYMENT   Default Azure deployment name
   AZURE_API_VERSION         Azure API version (default: 2025-04-01-preview)
-  AZURE_OPENAI_IMAGE_MODEL  Backward-compatible Azure deployment/model alias (defaults to gpt-image-1.5)
+  AZURE_OPENAI_IMAGE_MODEL  Backward-compatible Azure deployment/model alias (defaults to gpt-image-2)
   SEEDREAM_BASE_URL         Custom Seedream endpoint
   BAOYU_IMAGE_GEN_MAX_WORKERS  Override batch worker cap
   BAOYU_IMAGE_GEN_<PROVIDER>_CONCURRENCY  Override provider concurrency
@@ -157,9 +168,12 @@ export function parseArgs(argv: string[]): CliArgs {
     provider: null,
     model: null,
     aspectRatio: null,
+    aspectRatioSource: null,
     size: null,
     quality: null,
     imageSize: null,
+    imageSizeSource: null,
+    imageApiDialect: null,
     referenceImages: [],
     n: 1,
     batchFile: null,
@@ -239,6 +253,7 @@ export function parseArgs(argv: string[]): CliArgs {
         v !== "openai" &&
         v !== "openrouter" &&
         v !== "dashscope" &&
+        v !== "zai" &&
         v !== "minimax" &&
         v !== "replicate" &&
         v !== "jimeng" &&
@@ -262,6 +277,7 @@ export function parseArgs(argv: string[]): CliArgs {
       const v = argv[++i];
       if (!v) throw new Error("Missing value for --ar");
       out.aspectRatio = v;
+      out.aspectRatioSource = "cli";
       continue;
     }
 
@@ -283,6 +299,16 @@ export function parseArgs(argv: string[]): CliArgs {
       const v = argv[++i]?.toUpperCase();
       if (v !== "1K" && v !== "2K" && v !== "4K") throw new Error(`Invalid imageSize: ${v}`);
       out.imageSize = v;
+      out.imageSizeSource = "cli";
+      continue;
+    }
+
+    if (a === "--imageApiDialect") {
+      const v = argv[++i];
+      if (v !== "openai-native" && v !== "ratio-metadata") {
+        throw new Error(`Invalid imageApiDialect: ${v}`);
+      }
+      out.imageApiDialect = v;
       continue;
     }
 
@@ -389,12 +415,16 @@ export function parseSimpleYaml(yaml: string): Partial<ExtendConfig> {
         config.default_aspect_ratio = cleaned === "null" ? null : cleaned;
       } else if (key === "default_image_size") {
         config.default_image_size = value === "null" ? null : value as "1K" | "2K" | "4K";
+      } else if (key === "default_image_api_dialect") {
+        config.default_image_api_dialect =
+          value === "null" ? null : parseOpenAIImageApiDialect(value);
       } else if (key === "default_model") {
         config.default_model = {
           google: null,
           openai: null,
           openrouter: null,
           dashscope: null,
+          zai: null,
           minimax: null,
           replicate: null,
           jimeng: null,
@@ -423,6 +453,7 @@ export function parseSimpleYaml(yaml: string): Partial<ExtendConfig> {
           key === "openai" ||
           key === "openrouter" ||
           key === "dashscope" ||
+          key === "zai" ||
           key === "minimax" ||
           key === "replicate" ||
           key === "jimeng" ||
@@ -441,6 +472,7 @@ export function parseSimpleYaml(yaml: string): Partial<ExtendConfig> {
           key === "openai" ||
           key === "openrouter" ||
           key === "dashscope" ||
+          key === "zai" ||
           key === "minimax" ||
           key === "replicate" ||
           key === "jimeng" ||
@@ -469,6 +501,15 @@ export function parseSimpleYaml(yaml: string): Partial<ExtendConfig> {
   }
 
   return config;
+}
+
+export function parseOpenAIImageApiDialect(
+  value: string | undefined | null
+): OpenAIImageApiDialect | null {
+  if (!value) return null;
+  const normalized = value.replace(/['"]/g, "").trim();
+  if (normalized === "openai-native" || normalized === "ratio-metadata") return normalized;
+  throw new Error(`Invalid OpenAI image API dialect: ${value}`);
 }
 
 type ExtendConfigPathPair = {
@@ -530,12 +571,25 @@ export async function loadExtendConfig(
 }
 
 export function mergeConfig(args: CliArgs, extend: Partial<ExtendConfig>): CliArgs {
+  const aspectRatio = args.aspectRatio ?? extend.default_aspect_ratio ?? null;
+  const imageSize = args.imageSize ?? extend.default_image_size ?? null;
+  const imageApiDialect =
+    args.imageApiDialect ??
+    extend.default_image_api_dialect ??
+    parseOpenAIImageApiDialect(process.env.OPENAI_IMAGE_API_DIALECT);
   return {
     ...args,
     provider: args.provider ?? extend.default_provider ?? null,
     quality: args.quality ?? extend.default_quality ?? null,
-    aspectRatio: args.aspectRatio ?? extend.default_aspect_ratio ?? null,
-    imageSize: args.imageSize ?? extend.default_image_size ?? null,
+    aspectRatio,
+    aspectRatioSource:
+      args.aspectRatioSource ??
+      (args.aspectRatio !== null ? "cli" : (aspectRatio !== null ? "config" : null)),
+    imageSize,
+    imageSizeSource:
+      args.imageSizeSource ??
+      (args.imageSize !== null ? "cli" : (imageSize !== null ? "config" : null)),
+    imageApiDialect,
   };
 }
 
@@ -571,13 +625,14 @@ export function getConfiguredProviderRateLimits(
     openai: { ...DEFAULT_PROVIDER_RATE_LIMITS.openai },
     openrouter: { ...DEFAULT_PROVIDER_RATE_LIMITS.openrouter },
     dashscope: { ...DEFAULT_PROVIDER_RATE_LIMITS.dashscope },
+    zai: { ...DEFAULT_PROVIDER_RATE_LIMITS.zai },
     minimax: { ...DEFAULT_PROVIDER_RATE_LIMITS.minimax },
     jimeng: { ...DEFAULT_PROVIDER_RATE_LIMITS.jimeng },
     seedream: { ...DEFAULT_PROVIDER_RATE_LIMITS.seedream },
     azure: { ...DEFAULT_PROVIDER_RATE_LIMITS.azure },
   };
 
-  for (const provider of ["replicate", "google", "openai", "openrouter", "dashscope", "minimax", "jimeng", "seedream", "azure"] as Provider[]) {
+  for (const provider of ["replicate", "google", "openai", "openrouter", "dashscope", "zai", "minimax", "jimeng", "seedream", "azure"] as Provider[]) {
     const envPrefix = `BAOYU_IMAGE_GEN_${provider.toUpperCase()}`;
     const extendLimit = extendConfig.batch?.provider_limits?.[provider];
     configured[provider] = {
@@ -629,6 +684,7 @@ function inferProviderFromModel(model: string | null): Provider | null {
   const normalized = model.trim();
   if (normalized.includes("seedream") || normalized.includes("seededit")) return "seedream";
   if (normalized === "image-01" || normalized === "image-01-live") return "minimax";
+  if (normalized === "glm-image" || normalized === "cogview-4-250304") return "zai";
   return null;
 }
 
@@ -642,10 +698,11 @@ export function detectProvider(args: CliArgs): Provider {
     args.provider !== "openrouter" &&
     args.provider !== "replicate" &&
     args.provider !== "seedream" &&
-    args.provider !== "minimax"
+    args.provider !== "minimax" &&
+    args.provider !== "dashscope"
   ) {
     throw new Error(
-      "Reference images require a ref-capable provider. Use --provider google (Gemini multimodal), --provider openai (GPT Image edits), --provider azure (Azure OpenAI), --provider openrouter (OpenRouter multimodal), --provider replicate, --provider seedream for supported Seedream models, or --provider minimax for MiniMax subject-reference workflows."
+      "Reference images require a ref-capable provider. Use --provider google (Gemini multimodal), --provider openai (GPT Image edits), --provider azure (Azure OpenAI), --provider openrouter (OpenRouter multimodal), --provider replicate, --provider dashscope with a wan2.7 image model, --provider seedream for supported Seedream models, or --provider minimax for MiniMax subject-reference workflows."
     );
   }
 
@@ -656,6 +713,7 @@ export function detectProvider(args: CliArgs): Provider {
   const hasOpenai = !!process.env.OPENAI_API_KEY;
   const hasOpenrouter = !!process.env.OPENROUTER_API_KEY;
   const hasDashscope = !!process.env.DASHSCOPE_API_KEY;
+  const hasZai = !!(process.env.ZAI_API_KEY || process.env.BIGMODEL_API_KEY);
   const hasMinimax = !!process.env.MINIMAX_API_KEY;
   const hasReplicate = !!process.env.REPLICATE_API_TOKEN;
   const hasJimeng = !!(process.env.JIMENG_ACCESS_KEY_ID && process.env.JIMENG_SECRET_ACCESS_KEY);
@@ -674,6 +732,13 @@ export function detectProvider(args: CliArgs): Provider {
       throw new Error("Model looks like a MiniMax image model, but MINIMAX_API_KEY is not set.");
     }
     return "minimax";
+  }
+
+  if (modelProvider === "zai") {
+    if (!hasZai) {
+      throw new Error("Model looks like a Z.AI image model, but ZAI_API_KEY is not set.");
+    }
+    return "zai";
   }
 
   if (args.referenceImages.length > 0) {
@@ -695,6 +760,7 @@ export function detectProvider(args: CliArgs): Provider {
     hasAzure && "azure",
     hasOpenrouter && "openrouter",
     hasDashscope && "dashscope",
+    hasZai && "zai",
     hasMinimax && "minimax",
     hasReplicate && "replicate",
     hasJimeng && "jimeng",
@@ -705,13 +771,29 @@ export function detectProvider(args: CliArgs): Provider {
   if (available.length > 1) return available[0]!;
 
   throw new Error(
-    "No API key found. Set GOOGLE_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY, AZURE_OPENAI_API_KEY+AZURE_OPENAI_BASE_URL, OPENROUTER_API_KEY, DASHSCOPE_API_KEY, MINIMAX_API_KEY, REPLICATE_API_TOKEN, JIMENG keys, or ARK_API_KEY.\n" +
+    "No API key found. Set GOOGLE_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY, AZURE_OPENAI_API_KEY+AZURE_OPENAI_BASE_URL, OPENROUTER_API_KEY, DASHSCOPE_API_KEY, ZAI_API_KEY, MINIMAX_API_KEY, REPLICATE_API_TOKEN, JIMENG keys, or ARK_API_KEY.\n" +
       "Create ~/.baoyu-skills/.env or <cwd>/.baoyu-skills/.env with your keys."
   );
 }
 
-export async function validateReferenceImages(referenceImages: string[]): Promise<void> {
+export type ReferenceImageValidationOptions = {
+  allowRemoteUrls?: boolean;
+};
+
+function isRemoteReferenceImage(refPath: string): boolean {
+  return /^https?:\/\//i.test(refPath);
+}
+
+function shouldAllowRemoteReferenceImages(provider: Provider | null): boolean {
+  return provider === "dashscope";
+}
+
+export async function validateReferenceImages(
+  referenceImages: string[],
+  options: ReferenceImageValidationOptions = {},
+): Promise<void> {
   for (const refPath of referenceImages) {
+    if (options.allowRemoteUrls && isRemoteReferenceImage(refPath)) continue;
     const fullPath = path.resolve(refPath);
     try {
       await access(fullPath);
@@ -737,6 +819,12 @@ export function isRetryableGenerationError(error: unknown): boolean {
     "API error (403)",
     "API error (404)",
     "temporarily disabled",
+    "supports saving exactly one image",
+    "supports only",
+    "support exactly one output image",
+    "support aspect ratios in",
+    "requires total pixels between",
+    "accept at most",
   ];
   return !nonRetryableMarkers.some((marker) => msg.includes(marker));
 }
@@ -744,6 +832,7 @@ export function isRetryableGenerationError(error: unknown): boolean {
 async function loadProviderModule(provider: Provider): Promise<ProviderModule> {
   if (provider === "google") return (await import("./providers/google")) as ProviderModule;
   if (provider === "dashscope") return (await import("./providers/dashscope")) as ProviderModule;
+  if (provider === "zai") return (await import("./providers/zai")) as ProviderModule;
   if (provider === "minimax") return (await import("./providers/minimax")) as ProviderModule;
   if (provider === "replicate") return (await import("./providers/replicate")) as ProviderModule;
   if (provider === "openrouter") return (await import("./providers/openrouter")) as ProviderModule;
@@ -775,6 +864,7 @@ function getModelForProvider(
       return extendConfig.default_model.openrouter;
     }
     if (provider === "dashscope" && extendConfig.default_model.dashscope) return extendConfig.default_model.dashscope;
+    if (provider === "zai" && extendConfig.default_model.zai) return extendConfig.default_model.zai;
     if (provider === "minimax" && extendConfig.default_model.minimax) return extendConfig.default_model.minimax;
     if (provider === "replicate" && extendConfig.default_model.replicate) return extendConfig.default_model.replicate;
     if (provider === "jimeng" && extendConfig.default_model.jimeng) return extendConfig.default_model.jimeng;
@@ -790,7 +880,11 @@ async function prepareSingleTask(args: CliArgs, extendConfig: Partial<ExtendConf
   const prompt = (await loadPromptForArgs(args)) ?? (await readPromptFromStdin());
   if (!prompt) throw new Error("Prompt is required");
   if (!args.imagePath) throw new Error("--image is required");
-  if (args.referenceImages.length > 0) await validateReferenceImages(args.referenceImages);
+  if (args.referenceImages.length > 0) {
+    await validateReferenceImages(args.referenceImages, {
+      allowRemoteUrls: shouldAllowRemoteReferenceImages(args.provider),
+    });
+  }
 
   const provider = detectProvider(args);
   const providerModule = await loadProviderModule(provider);
@@ -839,6 +933,10 @@ export function resolveBatchPath(batchDir: string, filePath: string): string {
   return path.isAbsolute(filePath) ? filePath : path.resolve(batchDir, filePath);
 }
 
+function resolveBatchReferencePath(batchDir: string, filePath: string): string {
+  return isRemoteReferenceImage(filePath) ? filePath : resolveBatchPath(batchDir, filePath);
+}
+
 export function createTaskArgs(baseArgs: CliArgs, task: BatchTaskInput, batchDir: string): CliArgs {
   return {
     ...baseArgs,
@@ -848,10 +946,13 @@ export function createTaskArgs(baseArgs: CliArgs, task: BatchTaskInput, batchDir
     provider: task.provider ?? baseArgs.provider ?? null,
     model: task.model ?? baseArgs.model ?? null,
     aspectRatio: task.ar ?? baseArgs.aspectRatio ?? null,
+    aspectRatioSource: task.ar != null ? "task" : (baseArgs.aspectRatioSource ?? null),
     size: task.size ?? baseArgs.size ?? null,
     quality: task.quality ?? baseArgs.quality ?? null,
     imageSize: task.imageSize ?? baseArgs.imageSize ?? null,
-    referenceImages: task.ref ? task.ref.map((filePath) => resolveBatchPath(batchDir, filePath)) : [],
+    imageSizeSource: task.imageSize != null ? "task" : (baseArgs.imageSizeSource ?? null),
+    imageApiDialect: task.imageApiDialect ?? baseArgs.imageApiDialect ?? null,
+    referenceImages: task.ref ? task.ref.map((filePath) => resolveBatchReferencePath(batchDir, filePath)) : [],
     n: task.n ?? baseArgs.n,
     batchFile: null,
     jobs: baseArgs.jobs,
@@ -875,7 +976,11 @@ async function prepareBatchTasks(
     const prompt = await loadPromptForArgs(taskArgs);
     if (!prompt) throw new Error(`Task ${i + 1} is missing prompt or promptFiles.`);
     if (!taskArgs.imagePath) throw new Error(`Task ${i + 1} is missing image output path.`);
-    if (taskArgs.referenceImages.length > 0) await validateReferenceImages(taskArgs.referenceImages);
+    if (taskArgs.referenceImages.length > 0) {
+      await validateReferenceImages(taskArgs.referenceImages, {
+        allowRemoteUrls: shouldAllowRemoteReferenceImages(taskArgs.provider),
+      });
+    }
 
     const provider = detectProvider(taskArgs);
     const providerModule = await loadProviderModule(provider);
@@ -999,7 +1104,7 @@ async function runBatchTasks(
   const acquireProvider = createProviderGate(providerRateLimits);
   const workerCount = getWorkerCount(tasks.length, jobs, maxWorkers);
   console.error(`Batch mode: ${tasks.length} tasks, ${workerCount} workers, parallel mode enabled.`);
-  for (const provider of ["replicate", "google", "openai", "openrouter", "dashscope", "jimeng", "seedream", "azure"] as Provider[]) {
+  for (const provider of ["replicate", "google", "openai", "openrouter", "dashscope", "zai", "minimax", "jimeng", "seedream", "azure"] as Provider[]) {
     const limit = providerRateLimits[provider];
     console.error(`- ${provider}: concurrency=${limit.concurrency}, startIntervalMs=${limit.startIntervalMs}`);
   }

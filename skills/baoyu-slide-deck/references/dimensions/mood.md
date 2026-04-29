@@ -8,6 +8,7 @@ Color temperature and palette style.
 |--------|-------------------|---------------|----------|
 | `professional` | Cool-neutral | Navy, gold, structured grays | Business, investor, corporate |
 | `warm` | Warm | Earth tones, oranges, natural colors | Education, friendly, approachable |
+| `macaron` | Warm | Pastel blocks (blue, mint, lavender, peach) on cream | Educational diagrams, knowledge sharing |
 | `cool` | Cool | Blues, grays, cyan, teal | Technical, data, analytical |
 | `vibrant` | Varied | High saturation, bold colors | Marketing, creative, attention-grabbing |
 | `dark` | Dark | Deep backgrounds with bright accents | Entertainment, gaming, atmospheric |
@@ -34,6 +35,19 @@ Secondary Text: #4A4A4A (Deep Brown)
 Accent 1: #F4A261 (Soft Orange)
 Accent 2: #E9C46A (Mustard Yellow)
 Accent 3: #87A96B (Sage Green)
+```
+
+### macaron
+
+```
+Background: #F5F0E8 (Warm Cream)
+Primary Text: #2D2D2D (Deep Charcoal)
+Muted Text: #6B6B6B (Warm Gray)
+Macaron Blue: #A8D8EA (Sky Blue)
+Macaron Mint: #B5E5CF (Mint Green)
+Macaron Lavender: #D5C6E0 (Lavender)
+Macaron Peach: #FFD5C2 (Peach)
+Accent: #E8655A (Coral Red)
 ```
 
 ### cool
@@ -95,6 +109,13 @@ Accent 2: #A1A1AA (Light Gray)
 - Soft transitions between colors
 - Welcoming atmosphere
 
+### macaron
+
+- Soft pastel color blocks as distinct information zones
+- Each zone uses one macaron color (blue, mint, lavender, peach)
+- Coral Red accent used sparingly for emphasis
+- Warm cream background maintains friendly, approachable feel
+
 ### cool
 
 - Blue-dominant palette
@@ -129,6 +150,7 @@ Accent 2: #A1A1AA (Light Gray)
 |------|-----------------|------------|
 | professional | clean texture, geometric typography | organic texture, handwritten |
 | warm | organic texture, humanist typography | pixel texture, minimal density |
+| macaron | organic texture, handwritten typography | pixel texture, dark mood |
 | cool | grid texture, technical typography | paper texture, handwritten |
 | vibrant | pixel/organic texture, editorial typography | neutral mood overlaps |
 | dark | clean/pixel texture, technical typography | paper texture |

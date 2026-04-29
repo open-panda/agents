@@ -21,6 +21,10 @@ Friendly, approachable, human-centered
 - Hearts, smiling faces, friendly icons
 - Warm gradient overlays
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 Personal growth, lifestyle, education, human stories, emotion, community

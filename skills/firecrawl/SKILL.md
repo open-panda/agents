@@ -1,7 +1,7 @@
 ---
 name: firecrawl
 description: |
-  Web scraping, search, crawling, and page interaction via the Firecrawl CLI. Use this skill whenever the user wants to search the web, find articles, research a topic, look something up online, scrape a webpage, grab content from a URL, extract data from a website, crawl documentation, download a site, or interact with pages that need clicks or logins. Also use when they say "fetch this page", "pull the content from", "get the page at https://", or reference scraping external websites. This provides real-time web search with full page content extraction and interact capabilities — beyond what Claude can do natively with built-in tools. Do NOT trigger for local file operations, git commands, deployments, or code editing tasks.
+  Search, scrape, and interact with the web via the Firecrawl CLI. Use this skill whenever the user wants to search the web, find articles, research a topic, look something up online, scrape a webpage, grab content from a URL, get data from a website, crawl documentation, download a site, or interact with pages that need clicks or logins. Also use when they say "fetch this page", "pull the content from", "get the page at https://", or reference external websites. This provides real-time web search with full page content and interact capabilities — beyond what Claude can do natively with built-in tools. Do NOT trigger for local file operations, git commands, deployments, or code editing tasks.
 allowed-tools:
   - Bash(firecrawl *)
   - Bash(npx firecrawl *)
@@ -9,9 +9,11 @@ allowed-tools:
 
 # Firecrawl CLI
 
-Web scraping, search, and page interaction CLI. Returns clean markdown optimized for LLM context windows.
+Search, scrape, and interact with the web. Returns clean markdown optimized for LLM context windows.
 
 Run `firecrawl --help` or `firecrawl <command> --help` for full option details.
+
+If the task is to integrate Firecrawl into an application, add `FIRECRAWL_API_KEY` to a project, or choose endpoint usage in product code, use the `firecrawl-build` skills. They are already installed alongside this CLI skill when you run `firecrawl init`.
 
 ## Prerequisites
 
@@ -26,9 +28,16 @@ Must be installed and authenticated. Check with `firecrawl --status`.
 ```
 
 - **Concurrency**: Max parallel jobs. Run parallel operations up to this limit.
-- **Credits**: Remaining API credits. Each scrape/crawl consumes credits.
+- **Credits**: Remaining API credits. Each operation consumes credits.
 
 If not ready, see [rules/install.md](rules/install.md). For output handling guidelines, see [rules/security.md](rules/security.md).
+
+Before doing real work, verify the setup with one small request:
+
+```bash
+mkdir -p .firecrawl
+firecrawl scrape "https://firecrawl.dev" -o .firecrawl/install-check.md
+```
 
 ```bash
 firecrawl search "query" --scrape --limit 3
@@ -53,6 +62,7 @@ Follow this escalation pattern:
 | AI-powered data extraction  | `agent`               | Need structured data from complex sites                   |
 | Interact with a page        | `scrape` + `interact` | Content requires clicks, form fills, pagination, or login |
 | Download a site to files    | `download`            | Save an entire site as local files                        |
+| Parse a local file          | `parse`               | File on disk (PDF, DOCX, XLSX, etc.) — not a URL          |
 
 For detailed command reference, run `firecrawl <command> --help`.
 
@@ -66,6 +76,20 @@ For detailed command reference, run `firecrawl <command> --help`.
 
 - `search --scrape` already fetches full page content. Don't re-scrape those URLs.
 - Check `.firecrawl/` for existing data before fetching again.
+
+## When to Load References
+
+- **Searching the web or finding sources first** -> [firecrawl-search](../firecrawl-search/SKILL.md)
+- **Scraping a known URL** -> [firecrawl-scrape](../firecrawl-scrape/SKILL.md)
+- **Finding URLs on a known site** -> [firecrawl-map](../firecrawl-map/SKILL.md)
+- **Bulk extraction from a docs section or site** -> [firecrawl-crawl](../firecrawl-crawl/SKILL.md)
+- **AI-powered structured extraction from complex sites** -> [firecrawl-agent](../firecrawl-agent/SKILL.md)
+- **Clicks, forms, login, pagination, or post-scrape browser actions** -> [firecrawl-interact](../firecrawl-interact/SKILL.md)
+- **Downloading a site to local files** -> [firecrawl-download](../firecrawl-download/SKILL.md)
+- **Parsing a local file (PDF, DOCX, XLSX, HTML, etc.)** -> [firecrawl-parse](../firecrawl-parse/SKILL.md)
+- **Install, auth, or setup problems** -> [rules/install.md](rules/install.md)
+- **Output handling and safe file-reading patterns** -> [rules/security.md](rules/security.md)
+- **Integrating Firecrawl into an app, adding `FIRECRAWL_API_KEY` to `.env`, or choosing endpoint usage in product code** -> use the `firecrawl-build` skills (already installed alongside this CLI skill)
 
 ## Output & Organization
 

@@ -27,6 +27,7 @@ When a dimension is omitted, select based on content signals.
 | Zen, focus, essential, pure, simple | `mono` |
 | History, vintage, retro, classic, exploration | `retro` |
 | Movie poster, album cover, concert, cinematic, dramatic, two-color | `duotone` |
+| Education, tutorial, knowledge, onboarding, concept explainer | `macaron` |
 
 ## Auto Rendering Selection
 

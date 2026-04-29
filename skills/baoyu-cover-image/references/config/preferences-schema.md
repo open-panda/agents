@@ -18,7 +18,7 @@ watermark:
 
 preferred_type: null      # hero|conceptual|typography|metaphor|scene|minimal or null for auto-select
 
-preferred_palette: null   # warm|elegant|cool|dark|earth|vivid|pastel|mono|retro or null for auto-select
+preferred_palette: null   # warm|elegant|cool|dark|earth|vivid|pastel|mono|retro|duotone|macaron or null for auto-select
 
 preferred_rendering: null # flat-vector|hand-drawn|painterly|digital|pixel|chalk or null for auto-select
 
@@ -31,6 +31,8 @@ default_aspect: "2.35:1"  # 2.35:1|16:9|1:1
 quick_mode: false         # Skip confirmation when true
 
 language: null            # zh|en|ja|ko|auto (null = auto-detect)
+
+preferred_image_backend: auto  # auto|ask|<backend-id>
 
 custom_palettes:
   - name: my-palette
@@ -60,6 +62,7 @@ custom_palettes:
 | `default_aspect` | string | "2.35:1" | Default aspect ratio |
 | `quick_mode` | bool | false | Skip confirmation step |
 | `language` | string | null | Output language (null = auto-detect) |
+| `preferred_image_backend` | string | `auto` | Image backend selection. `auto` = prefer runtime-native tool, fall back to the only installed backend, ask if multiple non-native are present. `ask` = always confirm on every run. `<backend-id>` (e.g., `codex-imagegen`, `baoyu-imagine`, `image_generate`) = pin this backend when available; fall back to `auto` when it isn't. Absent = `auto`. Resolution logic is documented in `SKILL.md`'s `## Image Generation Tools` section. |
 | `custom_palettes` | array | [] | User-defined palettes |
 
 ## Type Options
@@ -186,6 +189,8 @@ default_aspect: "16:9"
 quick_mode: true
 
 language: en
+
+preferred_image_backend: codex-imagegen
 
 custom_palettes:
   - name: corporate-tech

@@ -21,6 +21,10 @@ Clean, focused, essential
 - Single focal point emphasis
 - Stark contrast between elements
 
+## Semantic Constraint
+
+Do NOT render color names, hex codes, or role labels as visible text in the image.
+
 ## Best For
 
 Zen, focus, essential concepts, pure, simple, minimalist philosophy, clean design

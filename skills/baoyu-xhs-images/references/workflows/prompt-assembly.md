@@ -112,6 +112,37 @@ When `style: screen-print`, replace the standard Core Principles and Text Style 
 - Paper grain texture beneath all colors
 ```
 
+## Palette Override
+
+When `--palette` is specified (or style has `default_palette` in frontmatter and no explicit `--palette`), palette colors **replace** the style's Color Palette in the prompt. Style rendering rules (Visual Elements, Typography, Style Rules) remain unchanged.
+
+Load from `palettes/{palette}.md` and override:
+
+```markdown
+## Palette Override: {palette_name}
+
+**Background**: {palette background color and hex}
+
+**Colors**:
+- Text: {text color and hex}
+- Secondary: {secondary text color and hex}
+- Zone 1: {zone color and hex}
+- Zone 2: {zone color and hex}
+- Zone 3: {zone color and hex}
+- Zone 4: {zone color and hex}
+- Accent: {accent color and hex}
+
+**Constraint**: {semantic constraint from palette}
+```
+
+**Override rules**:
+1. Palette Background **replaces** style's background color (keep style's texture description)
+2. Palette Colors **replace** style's Color Palette section entirely
+3. Palette Semantic Constraint is appended to the style section
+4. If no `--palette` and style has `default_palette` → load that palette
+5. If no `--palette` and no `default_palette` → use style's built-in colors (no override)
+6. Explicit `--palette` always overrides style's `default_palette`
+
 ## Layout Section Assembly
 
 Load from `elements/canvas.md` and extract relevant layout:
@@ -159,26 +190,38 @@ be legible but not distracting from the main content.
 
 ### Step 0: Resolve Style Preset (if `--preset` used)
 
-If user specified `--preset`, resolve to style + layout from `references/style-presets.md`:
+If user specified `--preset`, resolve to style + layout + palette from `references/style-presets.md`:
 
 ```python
-# e.g., --preset knowledge-card → style=notion, layout=dense
-style, layout = resolve_preset(preset_name)
+# e.g., --preset hand-drawn-edu → style=sketch-notes, layout=flow, palette=macaron
+style, layout, palette = resolve_preset(preset_name)
 ```
 
-Explicit `--style`/`--layout` flags override preset values.
+Explicit `--style`/`--layout`/`--palette` flags override preset values.
 
 ### Step 1: Load Style Definition
 
 ```python
-preset = load_preset(style_name)  # e.g., "notion"
+preset = load_preset(style_name)  # e.g., "sketch-notes"
 ```
 
 Extract:
-- Color palette
+- Color palette (may be overridden by palette)
 - Visual elements
 - Typography style
 - Best practices (do/don't)
+- `default_palette` from frontmatter (if present)
+
+### Step 1.5: Apply Palette Override (if applicable)
+
+```python
+# Priority: explicit --palette > preset palette > style default_palette > none
+palette = resolve_palette(cli_palette, preset_palette, style_default_palette)
+if palette:
+    palette_def = load_palette(palette)  # e.g., "macaron"
+    # Replace style colors with palette colors
+    # Keep style rendering rules (visual elements, typography, style rules)
+```
 
 ### Step 2: Load Layout
 
@@ -327,6 +370,7 @@ Please use nano banana pro to generate the infographic based on the specificatio
 Before generating, verify:
 
 - [ ] Style section loaded from correct preset
+- [ ] Palette override applied (if `--palette` specified or style has `default_palette`)
 - [ ] Layout section matches outline specification
 - [ ] Content accurately reflects outline entry
 - [ ] Language matches source content
