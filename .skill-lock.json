@@ -181,15 +181,6 @@
       "installedAt": "2026-04-02T14:10:25.352Z",
       "updatedAt": "2026-04-29T02:59:04.459Z"
     },
-    "skill-creator": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/anthropics/skills.git",
-      "skillPath": "skills/skill-creator/SKILL.md",
-      "skillFolderHash": "3cf9a8db32597ba3e24b584a3d696f4e11c7d7b6",
-      "installedAt": "2026-04-02T14:15:11.372Z",
-      "updatedAt": "2026-04-29T02:59:08.260Z"
-    },
     "remotion-best-practices": {
       "source": "remotion-dev/skills",
       "sourceType": "github",
@@ -198,15 +189,6 @@
       "skillFolderHash": "244095954fa19993a6252643f04607dee4ad17d6",
       "installedAt": "2026-04-02T14:15:57.006Z",
       "updatedAt": "2026-04-29T02:59:10.821Z"
-    },
-    "frontend-design": {
-      "source": "pbakaus/impeccable",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/pbakaus/impeccable.git",
-      "skillPath": ".agents/skills/frontend-design/SKILL.md",
-      "skillFolderHash": "f189767c1df18165c019c0354874fe46064d592b",
-      "installedAt": "2026-04-02T14:16:43.630Z",
-      "updatedAt": "2026-04-02T14:20:24.623Z"
     },
     "seo-audit": {
       "source": "coreyhaines31/marketingskills",
@@ -262,15 +244,6 @@
       "installedAt": "2026-04-02T14:55:58.047Z",
       "updatedAt": "2026-04-02T14:55:58.047Z"
     },
-    "pptx-generator": {
-      "source": "minimax-ai/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/minimax-ai/skills.git",
-      "skillPath": "skills/pptx-generator/SKILL.md",
-      "skillFolderHash": "871f9dcc96fb46f1ee7883b8fed87140b430a2ae",
-      "installedAt": "2026-04-02T14:55:58.632Z",
-      "updatedAt": "2026-04-02T14:55:58.632Z"
-    },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
@@ -297,15 +270,6 @@
       "skillFolderHash": "2c9b7bc934b67d90a276472304b3af7b14122fd6",
       "installedAt": "2026-04-03T14:48:30.176Z",
       "updatedAt": "2026-04-03T14:48:30.176Z"
-    },
-    "canvas-design": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/anthropics/skills.git",
-      "skillPath": "skills/canvas-design/SKILL.md",
-      "skillFolderHash": "95095faaee2ea943e85a5d1d562fde06841e835e",
-      "installedAt": "2026-04-05T13:54:55.724Z",
-      "updatedAt": "2026-04-29T02:59:21.855Z"
     },
     "autocli": {
       "source": "nashsu/AutoCLI-skill",
